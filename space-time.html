@@ -69,6 +69,22 @@
                 ground: "world-elevation"
             });
 
+            const svkNettLayer = new WMSLayer({
+                url: "https://inspire-skn.metria.se/geoserver/skn/wms",
+                sublayers: [
+                    {
+                        name: "US.ElectricityNetwork.Lines"
+                    },
+                    {
+                        name: "US.ElectricityNetwork.StationAreas"
+                    },
+                    {
+                        name: "US.ElectricityNetwork.Stations"
+                    }
+                ]
+            });
+            map.layers.add(svkNettLayer);
+
             const energinettNettLayer = new WMSLayer({
                 url: "https://agis.energinet.dk/server/services/INSPIRE/XP_el_Inspir/MapServer/WMSServer",
                 sublayers: [
