@@ -56,7 +56,6 @@
             "esri/analysis/SlicePlane",
             "esri/widgets/LayerList",
             "esri/core/Collection",
-            "esri/views/SceneView",
             "dojo/domReady!"
         ], function (
             Map, 
@@ -85,17 +84,7 @@
                 center: [59.9170566, 10.7274104],
                 zoom: 3,
             });
-
-            
-
-            // Lager BasemapGallery og legger i høyre hjørje av view.
-            const basemapGallery = new BasemapGallery({
-                view: view
-            });
-
-            view.ui.add(basemapGallery, {
-                position: "top-right"
-            });
+        })
 
     </script>
 
