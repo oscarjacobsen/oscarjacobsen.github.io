@@ -23,22 +23,35 @@
     <script src="https://js.arcgis.com/4.23/"></script>
 
     <script>
+        // Legger til brukte biblioteker
         require([
             "esri/Map",
             "esri/views/SceneView",
+            "esri/widgets/BasemapGallery",
             "dojo/domReady!"
-        ], function (Map, SceneView) {
+        ], function (Map, SceneView, BasemapGallery) {
 
+            // Lager kart
             var map = new Map({
                 basemap: "satellite",
                 ground: "world-elevation"
             });
 
+            // Lager view
             var view = new SceneView({
                 container: "viewDiv",
                 map: map,
                 center: [59.9170566, 10.7274104],
                 zoom: 3,
+            });
+
+            // Lager BasemapGallery og legger i høyre hjørje av view.
+            const basemapGallery = new BasemapGallery({
+                view: view
+            });
+
+            view.ui.add(basemapGallery, {
+                position: "top-right"
             });
         });
     </script>
