@@ -3,14 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Create a 3D map</title>
+    <title>OJ - World</title>
 
-    <link rel="stylesheet" href="//js.arcgis.com/4.10/esri/css/main.css">
-    <script src="//js.arcgis.com/4.10/"></script>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
 
-</head>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.10/"></script>
 
-<body>
     <script>
         require([
             "esri/Map",
@@ -19,7 +27,8 @@
         ], function (Map, SceneView) {
 
             var map = new Map({
-                basemap: "satellite"
+                basemap: "satellite",
+                ground: "world-elevation"
             });
 
             var view = new SceneView({
@@ -28,6 +37,10 @@
             });
         });
     </script>
+
+</head>
+
+<body>
     <div id="viewDiv"></div>
 </body>
 
