@@ -49,26 +49,151 @@
         require([
             "esri/Map",
             "esri/views/SceneView",
+            "esri/layers/TileLayer",
+            "esri/layers/SceneLayer",
+            "esri/layers/WMSLayer",
             "dojo/domReady!"
         ], function (
             Map, 
             SceneView,
+            TileLayer,
+            SceneLayer,
+            WMSLayer
             ) {
 
+
+            
             // Lager kart
             var map = new Map({
                 basemap: "satellite",
                 ground: "world-elevation"
             });
 
+            const energinettNettLayer = new WMSLayer({
+                url: "https://agis.energinet.dk/server/services/INSPIRE/XP_el_Inspir/MapServer/WMSServer",
+                sublayers: [
+                    {
+                        name: "0"
+                    },
+                    {
+                        name: "1"
+                    },
+                    {
+                        name: "2"
+                    },
+                    {
+                        name: "3"
+                    },
+                ]
+            });
+            map.layers.add(energinettNettLayer);
+
+            const energinettStationsLayer = new WMSLayer({
+                url: "https://agis.energinet.dk/server/services/INSPIRE/WMS_WFS_TowerSubstationLine_N/MapServer/WMSServer",
+                sublayers: [
+                    {
+                        name: "0"
+                    }
+                ]
+            });
+            map.layers.add(energinettStationsLayer);
+
+            const statnettNettLayer = new WMSLayer({
+                url: "https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer",
+                sublayers: [
+                    {
+                        name: "Sjokabler"
+                    },
+                    {
+                        name: "Distribusjonsnett"
+                    },
+                    {
+                        name: "Regionalnett"
+                    },
+                    {
+                        name: "Sentralnett"
+                    },
+                    {
+                        name: "Transformatorstasjoner"
+                    },
+                    {
+                        name: "Master og stolper"
+                    },
+                ]
+            });
+            map.layers.add(statnettNettLayer);
+
+            const fingridNettLayer = new WMSLayer({
+                url: "https://fingrid.navici.com/wms/3d5805c1f9cda9db42d9d9378952427b",
+                sublayers: [
+                    {
+                        name: "active_power_lines"
+                    },
+                    {
+                        name: "external_power_lines"
+                    },
+                    {
+                        name: "active_cables"
+                    },
+                    {
+                        name: "external_cables"
+                    },
+                    {
+                        name: "active_stations"
+                    },
+                    {
+                        name: "external_stations"
+                    },
+                ]
+            });
+            map.layers.add(fingridNettLayer);
+
+            var statnettKraftnettLayer = new SceneLayer({
+                portalItem: {
+                    id: "5ee88cca0f784547ae79e717960d7223"
+                }
+            });
+            map.layers.add(statnettKraftnettLayer);
+
             // Lager view
             var view = new SceneView({
                 container: "viewDiv",
                 map: map,
-                center: [59.9170566, 10.7274104],
-                zoom: 3,
+                camera: {
+                    position: [10.7274104, 59.9170566],
+                    tilt: 80,
+                    heading: 122
+                }
             });
-        })
+
+            // Create SceneLayer and add to the map
+        const sceneLayer = new SceneLayer({
+          portalItem: {
+            id: "2e0761b9a4274b8db52c4bf34356911e"
+          },
+          popupEnabled: false
+        });
+        map.add(sceneLayer);
+
+            // Create MeshSymbol3D for symbolizing SceneLayer
+            const symbol = {
+                type: "mesh-3d", // autocasts as new MeshSymbol3D()
+                symbolLayers: [
+                    {
+                        type: "fill", // autocasts as new FillSymbol3DLayer()
+                        // If the value of material is not assigned, the default color will be grey
+                        material: {
+                            color: [244, 247, 134]
+                        }
+                    }
+                ]
+            };
+            // Add the renderer to sceneLayer
+            sceneLayer.renderer = {
+                type: "simple", // autocasts as new SimpleRenderer()
+                symbol: symbol
+            };
+        });
 
     </script>
 
