@@ -8,9 +8,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="./styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      div#dropZone {
+            background: gray;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            opacity: 0.6;
+            visibility: hidden;
+        }
+    </style>
     <title>IFC.js</title>
   </head>
   <body>
+    <div id="dropZone"></div>
     <aside class="side-menu" id="side-menu-left"></aside>
       <div id="viewer-container"></div>
     <div id="loading-overlay" class="loading-overlay hidden">
