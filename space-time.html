@@ -15,33 +15,10 @@
             height: 100%;
             width: 100%;
         }
-
-        #menu {
-        padding: 0.8em;
-        max-width: 250px;
-      }
-
-      #sliceContainer {
-        width: inherit;
-      }
-
-      #sliceOptions {
-        margin: 0 15px;
-      }
-
-      #sliceOptions>button {
-        margin-bottom: 15px;
-      }
-
-      #sliceContainer {
-        max-width: 228px;
-      }
     </style>
 
-    <link 
-    rel="stylesheet" 
-    href="https://js.arcgis.com/4.23/esri/themes/light/main.css"
-    >
+    <!-- Legger til ArcGIS API for Javascript -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
     <script src="https://js.arcgis.com/4.23/"></script>
 
     <script>
@@ -49,18 +26,18 @@
         require([
             "esri/Map",
             "esri/views/SceneView",
+            "esri/widgets/Search",
             "esri/layers/TileLayer",
             "esri/layers/SceneLayer",
-            "esri/layers/WMSLayer",
-            "dojo/domReady!"
-        ], function (
+            "esri/layers/WMSLayer"
+        ], (
             Map, 
             SceneView,
+            Search,
             TileLayer,
             SceneLayer,
             WMSLayer
-            ) {
-
+        ) => {
 
             
             // Lager kart
@@ -69,21 +46,26 @@
                 ground: "world-elevation"
             });
 
-            const svkNettLayer = new WMSLayer({
-                url: "https://inspire-skn.metria.se/geoserver/skn/wms",
-                sublayers: [
-                    {
-                        name: "US.ElectricityNetwork.Lines"
-                    },
-                    {
-                        name: "US.ElectricityNetwork.StationAreas"
-                    },
-                    {
-                        name: "US.ElectricityNetwork.Stations"
-                    }
-                ]
+            // Lager 3DScene view
+            var view = new SceneView({
+                container: "viewDiv",
+                map: map,
+                camera: {
+                    position: [10.7274104, 59.9170566],
+                    tilt: 80,
+                    heading: 122
+                }
             });
-            map.layers.add(svkNettLayer);
+
+
+            const searchWidget = new Search({
+                view: view
+            });
+
+            // Add the search widget to the top right corner of the view
+            view.ui.add(searchWidget, {
+                position: "top-right"
+            });
 
             const energinettNettLayer = new WMSLayer({
                 url: "https://agis.energinet.dk/server/services/INSPIRE/XP_el_Inspir/MapServer/WMSServer",
@@ -103,6 +85,28 @@
                 ]
             });
             map.layers.add(energinettNettLayer);
+
+            /*
+            // 
+            // WMS lag over nordiske kraftnett
+            // 
+            const svkNettLayer = new WMSLayer({
+                url: "https://inspire-skn.metria.se/geoserver/skn/wms",
+                sublayers: [
+                    {
+                        name: "US.ElectricityNetwork.Lines"
+                    },
+                    {
+                        name: "US.ElectricityNetwork.StationAreas"
+                    },
+                    {
+                        name: "US.ElectricityNetwork.Stations"
+                    }
+                ]
+            });
+            map.layers.add(svkNettLayer);
+
+            
 
             const energinettStationsLayer = new WMSLayer({
                 url: "https://agis.energinet.dk/server/services/INSPIRE/WMS_WFS_TowerSubstationLine_N/MapServer/WMSServer",
@@ -139,30 +143,30 @@
             });
             map.layers.add(statnettNettLayer);
 
-            const fingridNettLayer = new WMSLayer({
-                url: "https://fingrid.navici.com/wms/3d5805c1f9cda9db42d9d9378952427b",
-                sublayers: [
-                    {
-                        name: "active_power_lines"
-                    },
-                    {
-                        name: "external_power_lines"
-                    },
-                    {
-                        name: "active_cables"
-                    },
-                    {
-                        name: "external_cables"
-                    },
-                    {
-                        name: "active_stations"
-                    },
-                    {
-                        name: "external_stations"
-                    },
-                ]
-            });
-            map.layers.add(fingridNettLayer);
+            // const fingridNettLayer = new WMSLayer({
+            //    url: "https://fingrid.navici.com/wms/3d5805c1f9cda9db42d9d9378952427b",
+            //    sublayers: [
+            //        {
+            //            name: "active_power_lines"
+            //        },
+            //        {
+            //            name: "external_power_lines"
+            //        },
+            //        {
+            //            name: "active_cables"
+            //        },
+            //        {
+            //            name: "external_cables"
+            //        },
+            //        {
+            //            name: "active_stations"
+            //        },
+            //        {
+            //            name: "external_stations"
+            //        },
+            //    ]
+            // });
+            // map.layers.add(fingridNettLayer);
 
             var statnettKraftnettLayer = new SceneLayer({
                 portalItem: {
@@ -171,16 +175,7 @@
             });
             map.layers.add(statnettKraftnettLayer);
 
-            // Lager view
-            var view = new SceneView({
-                container: "viewDiv",
-                map: map,
-                camera: {
-                    position: [10.7274104, 59.9170566],
-                    tilt: 80,
-                    heading: 122
-                }
-            });
+            
 
             // Create SceneLayer and add to the map
         const sceneLayer = new SceneLayer({
@@ -209,6 +204,7 @@
                 type: "simple", // autocasts as new SimpleRenderer()
                 symbol: symbol
             };
+            */
         });
 
     </script>
