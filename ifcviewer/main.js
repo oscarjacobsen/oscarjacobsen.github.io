@@ -1,5 +1,5 @@
 import { IfcViewerAPI } from 'web-ifc-viewer';
-import { createSideMenuButton } from './utils/gui-creator';
+import { createSideMenuButton } from './js/gui-creator';
 import {
   IFCSPACE, IFCOPENINGELEMENT, IFCFURNISHINGELEMENT, IFCWALL, IFCWINDOW, IFCCURTAINWALL, IFCMEMBER, IFCPLATE
 } from 'web-ifc';
