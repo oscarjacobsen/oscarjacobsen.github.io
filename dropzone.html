@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+
+    <style>
+        div#dropZone {
+            background: gray;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            opacity: 0.6;
+            visibility: hidden;
+        }
+    </style>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Website Title -->
+    <title>OJ - Oscar Jacobsen</title>
+    <!-- Bootstrap -->
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font-Awesome -->
+    <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Lightbox -->
+    <link href="assets/lightbox/css/lightbox.css" rel="stylesheet">
+    <!-- Text Rotator-->
+    <link href="assets/textrotator/simpletextrotator.css" rel="stylesheet">
+    <!-- FlexSlider -->
+    <link href="assets/flexslider/flexslider.css" rel="stylesheet">
+    <!-- Theme Style -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Animations -->
+    <link href="css/animate.css" rel="stylesheet">
+    <!-- Custom Favicon -->
+    <link href="img/favicon.png" rel="shortcut icon" type="image/png" />
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="assets/html5shiv/html5shiv.js"></script>
+        <script src="assets/respond/respond.min.js"></script>
+        <![endif]-->
+
+
+</head>
+
+<body>
+    <div id="dropZone"></div>
+
+
+    <div>
+        <input type="file" name="file" id="docpicker" />
+    </div>
+    <textarea id="inputTextToSave"></textarea>
+
+    <script>
+        var dropZone = document.getElementById('dropZone');
+
+        function showDropZone() {
+            dropZone.style.visibility = "visible";
+        }
+        function hideDropZone() {
+            dropZone.style.visibility = "hidden";
+        }
+
+        function allowDrag(e) {
+            if (true) {  // Test that the item being dragged is a valid one
+                e.dataTransfer.dropEffect = 'copy';
+                e.preventDefault();
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            hideDropZone();
+
+            alert('Drop!');
+        }
+
+        // 1
+        window.addEventListener('dragenter', function (e) {
+            showDropZone();
+        });
+
+        // 2
+        dropZone.addEventListener('dragenter', allowDrag);
+        dropZone.addEventListener('dragover', allowDrag);
+
+        // 3
+        dropZone.addEventListener('dragleave', function (e) {
+            hideDropZone();
+        });
+
+        // 4
+        dropZone.addEventListener('drop', handleDrop);
+    </script>
+</body>
+
+</html>
