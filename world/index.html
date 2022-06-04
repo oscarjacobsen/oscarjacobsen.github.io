@@ -62,11 +62,11 @@
     <!-- 
         Legger til 
         Kilde: http://3d.kommunekart.com/
-    -->
+    
     <link href="/Css/leaflet.css" rel="stylesheet">
     <link href="/Css/NORKART3D.css" rel="stylesheet">
     <script src="/Script/NORKART3D-min.js"></script>
-    
+    -->
     <script>
         // Legger til brukte biblioteker
         require([
@@ -75,6 +75,7 @@
             "esri/widgets/Search",
             "esri/widgets/DirectLineMeasurement3D",
             "esri/widgets/AreaMeasurement3D",
+            "esri/widgets/Locate",
             "esri/core/promiseUtils",
             "esri/widgets/BasemapToggle",
             "esri/layers/TileLayer",
@@ -86,6 +87,7 @@
             Search,
             DirectLineMeasurement3D,
             AreaMeasurement3D,
+            Locate,
             promiseUtils,
             TileLayer,
             SceneLayer,
@@ -115,6 +117,16 @@
 
             // add the toolbar for the measurement widgets
             view.ui.add("topbar", "top-right");
+
+            const locate = new Locate({
+                view: view,
+                useHeadingEnabled: false,
+                goToOverride: function (view, options) {
+                    options.target.scale = 1500;
+                    return view.goTo(options.target);
+                }
+            });
+            view.ui.add(locate, "bottom-right");
 
             document
                 .getElementById("distanceButton")
