@@ -205,6 +205,14 @@
                     selectedButton.classList.add("active");
                 }
             }
+
+            // Legger til Norske Bygninger fra FKB i 3D
+            let GeosceneBygninger2Layer = new SceneLayer({
+                // URL to the service
+                url: "https://utility.arcgis.com/usrsvcs/servers/96c6d88fc74c4117a522bf1ef952ed86/rest/services/Geoscene/GeosceneBygning2/SceneServer/layers/0"
+            });
+            map.layers.add(GeosceneBygninger2Layer);
+
             /*
 
             const searchWidget = new Search({

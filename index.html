@@ -23,6 +23,11 @@
     <link href="css/animate.css" rel="stylesheet">
     <!-- Custom Favicon -->
     <link href="img/favicon.png" rel="shortcut icon" type="image/png" />
+
+    <!-- Legger til Google Platform og min AppId-->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="oj-apps.apps.googleusercontent.com">
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -32,7 +37,16 @@
 </head>
 
 <body id="top">
-
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <a href="#" onclick="signOut();">Sign out</a>
+    <script>
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+                console.log('User signed out.');
+            });
+        }
+    </script>
     <div class="loader-wrapper">
         <span class="loader"></span>
     </div>
