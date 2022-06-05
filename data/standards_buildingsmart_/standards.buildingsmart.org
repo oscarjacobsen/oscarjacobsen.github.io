@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>index</title>
+</head>
+
+<body>
+
+<div>
+<img alt="buildingSMART International Standards Server"
+src="images/BuildingSMART_RGB_Int_512px.png" style="float: left" width="512"
+height="92" />
+<br><br><br><br></br>
+</div>
+
+<div>
+
+<h1 style="font-family: Arial,Helvetica,sans-serif">buildingSMART International Standards Server</h1>
+
+<p style="font-family: Arial,Helvetica,sans-serif">This is the official domain for buildingSMART International standards and supporting documentation.
+<br>
+<br>
+This includes Retired, Official, and Candidate versions of the IFC schemas, as well as MVD documentation (HTML), along with other associated files (EXP, XSD, RDF, TTL, etc.). Support documentation in PDF form may also be found here.
+<br>
+<br>
+All content on this server can be accessed from links at the following buildingSMART websites:
+<ul style="font-family: Arial,Helvetica,sans-serif">
+  <li id="buildingSM"><a
+    href="https://www.buildingsmart.org/">buildingsmart.org</a></li>
+  <li><a
+    href="https://technical.buildingsmart.org/">technical.buildingsmart.org</a></li>
+  <li><a
+  href="https://forums.buildingsmart.org/">forums.buildingsmart.org</a></li>
+</ul>
+</p>
+<p style="font-family: Arial,Helvetica,sans-serif">If there are any questions or issues, please contact <a href="mailto:websupport@buildingsmart.org?Subject=Standards%20Server%20Inquiry" target="_top">websupport@buildingsmart.org</a> or <a href="mailto:technical@buildingsmart.org?Subject=Standards%20Server%20Inquiry" target="_top">technical@buildingsmart.org</a>.
+<br>
+<br>
+Thank you and welcome to the buildingSMART International community!
+<br>
+<br>
+©2019 buildingSMART International Ltd.
+</p>
+
+</div>
+</body>
+</html>
