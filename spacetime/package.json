@@ -1,0 +1,15 @@
+{
+  "name": "spacetimexd",
+  "version": "1.0.0",
+  "description": "Digital Systems Modeller",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Oscar Jacobsen",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/three": "^0.141.0",
+    "three": "^0.141.0"
+  }
+}
