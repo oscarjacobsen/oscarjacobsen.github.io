@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>NVDB</title>
+  <style>
+    .inline-div {
+      display: inline-block;
+    }
+
+    .inline-txtarea {
+      resize: true;
+      border: 2px solid red;
+      height: 500px;
+      width: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1> <a href="https://vegkart.atlas.vegvesen.no/#kartlag:geodata/@600000,7225000,3"> Nasjonal Vegdatabank </a>
+    </br>.IFC til .SOSI omformer :)</h1>
+
+
+  <input type="file" id="myFile">
+  <hr>
+
+  <!--<div style="width: 300px;height: 0px" id="output"></div>-->
+  <div class="inline-div">
+    <p align="center">IFC</p>
+    <textarea cols="15" rows="15" class="inline-txtarea" id="ifc_output"></textarea>
+  </div>
+  <div class="inline-div">
+    <p align="center">SOSI</p>
+    <textarea cols="15" rows="15" class="inline-txtarea" id="sosi_output"></textarea>
+  </div>
+  <!--<textarea style="width:500px;height: 400px" id="output"></textarea>-->
+  <!--<textarea style="width:500px;height: 400px" id="output"></textarea>-->
+
+
+  <script src="getNvdbApi.js"></script>
+
+  <script>
+
+    var ifc_input = document.getElementById("ifc-file");
+    var ifc_output = document.getElementById("ifc-output");
+    var sosi_output = document.getElementById("sosi-output");
+
+
+    ifc_input.addEventListener("change", function () {
+
+      if (this.files && this.files[0]) {
+
+        var myFile = this.files[0];
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function (e) {
+          output.textContent = e.target.result;
+        });
+
+        reader.readAsBinaryString();
+      }
+    });
+  </script>
+</body>
+
+</html>
