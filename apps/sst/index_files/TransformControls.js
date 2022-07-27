@@ -1,1564 +1,1079 @@
-﻿import {
-    BoxGeometry,
-    BufferGeometry,
-    CylinderGeometry,
-    DoubleSide,
-    Euler,
-    Float32BufferAttribute,
-    Line,
-    LineBasicMaterial,
-    Matrix4,
-    Mesh,
-    MeshBasicMaterial,
-    Object3D,
-    OctahedronGeometry,
-    PlaneGeometry,
-    Quaternion,
-    Raycaster,
-    SphereGeometry,
-    TorusGeometry,
-    Vector3
-} from 'three';
+﻿(function () {
 
-const _raycaster = new Raycaster();
+    // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+    //
+    //    Orbit - left mouse / touch: one-finger move
+    //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+    //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-const _tempVector = new Vector3();
-const _tempVector2 = new Vector3();
-const _tempQuaternion = new Quaternion();
-const _unit = {
-    X: new Vector3(1, 0, 0),
-    Y: new Vector3(0, 1, 0),
-    Z: new Vector3(0, 0, 1)
-};
+    const _changeEvent = {
+        type: 'change'
+    };
+    const _startEvent = {
+        type: 'start'
+    };
+    const _endEvent = {
+        type: 'end'
+    };
 
-const _changeEvent = { type: 'change' };
-const _mouseDownEvent = { type: 'mouseDown' };
-const _mouseUpEvent = { type: 'mouseUp', mode: null };
-const _objectChangeEvent = { type: 'objectChange' };
+    class OrbitControls extends THREE.EventDispatcher {
 
-class TransformControls extends Object3D {
+        constructor(object, domElement) {
 
-    constructor(camera, domElement) {
+            super();
+            if (domElement === undefined) console.warn('THREE.OrbitControls: The second parameter "domElement" is now mandatory.');
+            if (domElement === document) console.error('THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.');
+            this.object = object;
+            this.domElement = domElement;
+            this.domElement.style.touchAction = 'none'; // disable touch scroll
+            // Set to false to disable this control
 
-        super();
+            this.enabled = true; // "target" sets the location of focus, where the object orbits around
 
-        if (domElement === undefined) {
+            this.target = new THREE.Vector3(); // How far you can dolly in and out ( PerspectiveCamera only )
 
-            console.warn('THREE.TransformControls: The second parameter "domElement" is now mandatory.');
-            domElement = document;
+            this.minDistance = 0;
+            this.maxDistance = Infinity; // How far you can zoom in and out ( OrthographicCamera only )
 
-        }
+            this.minZoom = 0;
+            this.maxZoom = Infinity; // How far you can orbit vertically, upper and lower limits.
+            // Range is 0 to Math.PI radians.
 
-        this.isTransformControls = true;
+            this.minPolarAngle = 0; // radians
 
-        this.visible = false;
-        this.domElement = domElement;
-        this.domElement.style.touchAction = 'none'; // disable touch scroll
+            this.maxPolarAngle = Math.PI; // radians
+            // How far you can orbit horizontally, upper and lower limits.
+            // If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
 
-        const _gizmo = new TransformControlsGizmo();
-        this._gizmo = _gizmo;
-        this.add(_gizmo);
+            this.minAzimuthAngle = - Infinity; // radians
 
-        const _plane = new TransformControlsPlane();
-        this._plane = _plane;
-        this.add(_plane);
+            this.maxAzimuthAngle = Infinity; // radians
+            // Set to true to enable damping (inertia)
+            // If damping is enabled, you must call controls.update() in your animation loop
 
-        const scope = this;
+            this.enableDamping = false;
+            this.dampingFactor = 0.05; // This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+            // Set to false to disable zooming
 
-        // Defined getter, setter and store for a property
-        function defineProperty(propName, defaultValue) {
+            this.enableZoom = true;
+            this.zoomSpeed = 1.0; // Set to false to disable rotating
 
-            let propValue = defaultValue;
+            this.enableRotate = true;
+            this.rotateSpeed = 1.0; // Set to false to disable panning
 
-            Object.defineProperty(scope, propName, {
+            this.enablePan = true;
+            this.panSpeed = 1.0;
+            this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
 
-                get: function () {
+            this.keyPanSpeed = 7.0; // pixels moved per arrow key push
+            // Set to true to automatically rotate around the target
+            // If auto-rotate is enabled, you must call controls.update() in your animation loop
 
-                    return propValue !== undefined ? propValue : defaultValue;
+            this.autoRotate = false;
+            this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
+            // The four arrow keys
 
-                },
+            this.keys = {
+                LEFT: 'ArrowLeft',
+                UP: 'ArrowUp',
+                RIGHT: 'ArrowRight',
+                BOTTOM: 'ArrowDown'
+            }; // Mouse buttons
 
-                set: function (value) {
+            this.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.PAN
+            }; // Touch fingers
 
-                    if (propValue !== value) {
+            this.touches = {
+                ONE: THREE.TOUCH.ROTATE,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            }; // for reset
 
-                        propValue = value;
-                        _plane[propName] = value;
-                        _gizmo[propName] = value;
+            this.target0 = this.target.clone();
+            this.position0 = this.object.position.clone();
+            this.zoom0 = this.object.zoom; // the target DOM element for key events
 
-                        scope.dispatchEvent({ type: propName + '-changed', value: value });
-                        scope.dispatchEvent(_changeEvent);
+            this._domElementKeyEvents = null; //
+            // public methods
+            //
+
+            this.getPolarAngle = function () {
+
+                return spherical.phi;
+
+            };
+
+            this.getAzimuthalAngle = function () {
+
+                return spherical.theta;
+
+            };
+
+            this.getDistance = function () {
+
+                return this.object.position.distanceTo(this.target);
+
+            };
+
+            this.listenToKeyEvents = function (domElement) {
+
+                domElement.addEventListener('keydown', onKeyDown);
+                this._domElementKeyEvents = domElement;
+
+            };
+
+            this.saveState = function () {
+
+                scope.target0.copy(scope.target);
+                scope.position0.copy(scope.object.position);
+                scope.zoom0 = scope.object.zoom;
+
+            };
+
+            this.reset = function () {
+
+                scope.target.copy(scope.target0);
+                scope.object.position.copy(scope.position0);
+                scope.object.zoom = scope.zoom0;
+                scope.object.updateProjectionMatrix();
+                scope.dispatchEvent(_changeEvent);
+                scope.update();
+                state = STATE.NONE;
+
+            }; // this method is exposed, but perhaps it would be better if we can make it private...
+
+
+            this.update = function () {
+
+                const offset = new THREE.Vector3(); // so camera.up is the orbit axis
+
+                const quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
+                const quatInverse = quat.clone().invert();
+                const lastPosition = new THREE.Vector3();
+                const lastQuaternion = new THREE.Quaternion();
+                const twoPI = 2 * Math.PI;
+                return function update() {
+
+                    const position = scope.object.position;
+                    offset.copy(position).sub(scope.target); // rotate offset to "y-axis-is-up" space
+
+                    offset.applyQuaternion(quat); // angle from z-axis around y-axis
+
+                    spherical.setFromVector3(offset);
+
+                    if (scope.autoRotate && state === STATE.NONE) {
+
+                        rotateLeft(getAutoRotationAngle());
 
                     }
 
-                }
+                    if (scope.enableDamping) {
 
-            });
-
-            scope[propName] = defaultValue;
-            _plane[propName] = defaultValue;
-            _gizmo[propName] = defaultValue;
-
-        }
-
-        // Define properties with getters/setter
-        // Setting the defined property will automatically trigger change event
-        // Defined properties are passed down to gizmo and plane
-
-        defineProperty('camera', camera);
-        defineProperty('object', undefined);
-        defineProperty('enabled', true);
-        defineProperty('axis', null);
-        defineProperty('mode', 'translate');
-        defineProperty('translationSnap', null);
-        defineProperty('rotationSnap', null);
-        defineProperty('scaleSnap', null);
-        defineProperty('space', 'world');
-        defineProperty('size', 1);
-        defineProperty('dragging', false);
-        defineProperty('showX', true);
-        defineProperty('showY', true);
-        defineProperty('showZ', true);
-
-        // Reusable utility variables
-
-        const worldPosition = new Vector3();
-        const worldPositionStart = new Vector3();
-        const worldQuaternion = new Quaternion();
-        const worldQuaternionStart = new Quaternion();
-        const cameraPosition = new Vector3();
-        const cameraQuaternion = new Quaternion();
-        const pointStart = new Vector3();
-        const pointEnd = new Vector3();
-        const rotationAxis = new Vector3();
-        const rotationAngle = 0;
-        const eye = new Vector3();
-
-        // TODO: remove properties unused in plane and gizmo
-
-        defineProperty('worldPosition', worldPosition);
-        defineProperty('worldPositionStart', worldPositionStart);
-        defineProperty('worldQuaternion', worldQuaternion);
-        defineProperty('worldQuaternionStart', worldQuaternionStart);
-        defineProperty('cameraPosition', cameraPosition);
-        defineProperty('cameraQuaternion', cameraQuaternion);
-        defineProperty('pointStart', pointStart);
-        defineProperty('pointEnd', pointEnd);
-        defineProperty('rotationAxis', rotationAxis);
-        defineProperty('rotationAngle', rotationAngle);
-        defineProperty('eye', eye);
-
-        this._offset = new Vector3();
-        this._startNorm = new Vector3();
-        this._endNorm = new Vector3();
-        this._cameraScale = new Vector3();
-
-        this._parentPosition = new Vector3();
-        this._parentQuaternion = new Quaternion();
-        this._parentQuaternionInv = new Quaternion();
-        this._parentScale = new Vector3();
-
-        this._worldScaleStart = new Vector3();
-        this._worldQuaternionInv = new Quaternion();
-        this._worldScale = new Vector3();
-
-        this._positionStart = new Vector3();
-        this._quaternionStart = new Quaternion();
-        this._scaleStart = new Vector3();
-
-        this._getPointer = getPointer.bind(this);
-        this._onPointerDown = onPointerDown.bind(this);
-        this._onPointerHover = onPointerHover.bind(this);
-        this._onPointerMove = onPointerMove.bind(this);
-        this._onPointerUp = onPointerUp.bind(this);
-
-        this.domElement.addEventListener('pointerdown', this._onPointerDown);
-        this.domElement.addEventListener('pointermove', this._onPointerHover);
-        this.domElement.addEventListener('pointerup', this._onPointerUp);
-
-    }
-
-    // updateMatrixWorld  updates key transformation variables
-    updateMatrixWorld() {
-
-        if (this.object !== undefined) {
-
-            this.object.updateMatrixWorld();
-
-            if (this.object.parent === null) {
-
-                console.error('TransformControls: The attached 3D object must be a part of the scene graph.');
-
-            } else {
-
-                this.object.parent.matrixWorld.decompose(this._parentPosition, this._parentQuaternion, this._parentScale);
-
-            }
-
-            this.object.matrixWorld.decompose(this.worldPosition, this.worldQuaternion, this._worldScale);
-
-            this._parentQuaternionInv.copy(this._parentQuaternion).invert();
-            this._worldQuaternionInv.copy(this.worldQuaternion).invert();
-
-        }
-
-        this.camera.updateMatrixWorld();
-        this.camera.matrixWorld.decompose(this.cameraPosition, this.cameraQuaternion, this._cameraScale);
-
-        if (this.camera.isOrthographicCamera) {
-
-            this.camera.getWorldDirection(this.eye);
-
-        } else {
-
-            this.eye.copy(this.cameraPosition).sub(this.worldPosition).normalize();
-
-        }
-
-        super.updateMatrixWorld(this);
-
-    }
-
-    pointerHover(pointer) {
-
-        if (this.object === undefined || this.dragging === true) return;
-
-        _raycaster.setFromCamera(pointer, this.camera);
-
-        const intersect = intersectObjectWithRay(this._gizmo.picker[this.mode], _raycaster);
-
-        if (intersect) {
-
-            this.axis = intersect.object.name;
-
-        } else {
-
-            this.axis = null;
-
-        }
-
-    }
-
-    pointerDown(pointer) {
-
-        if (this.object === undefined || this.dragging === true || pointer.button !== 0) return;
-
-        if (this.axis !== null) {
-
-            _raycaster.setFromCamera(pointer, this.camera);
-
-            const planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true);
-
-            if (planeIntersect) {
-
-                this.object.updateMatrixWorld();
-                this.object.parent.updateMatrixWorld();
-
-                this._positionStart.copy(this.object.position);
-                this._quaternionStart.copy(this.object.quaternion);
-                this._scaleStart.copy(this.object.scale);
-
-                this.object.matrixWorld.decompose(this.worldPositionStart, this.worldQuaternionStart, this._worldScaleStart);
-
-                this.pointStart.copy(planeIntersect.point).sub(this.worldPositionStart);
-
-            }
-
-            this.dragging = true;
-            _mouseDownEvent.mode = this.mode;
-            this.dispatchEvent(_mouseDownEvent);
-
-        }
-
-    }
-
-    pointerMove(pointer) {
-
-        const axis = this.axis;
-        const mode = this.mode;
-        const object = this.object;
-        let space = this.space;
-
-        if (mode === 'scale') {
-
-            space = 'local';
-
-        } else if (axis === 'E' || axis === 'XYZE' || axis === 'XYZ') {
-
-            space = 'world';
-
-        }
-
-        if (object === undefined || axis === null || this.dragging === false || pointer.button !== - 1) return;
-
-        _raycaster.setFromCamera(pointer, this.camera);
-
-        const planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true);
-
-        if (!planeIntersect) return;
-
-        this.pointEnd.copy(planeIntersect.point).sub(this.worldPositionStart);
-
-        if (mode === 'translate') {
-
-            // Apply translate
-
-            this._offset.copy(this.pointEnd).sub(this.pointStart);
-
-            if (space === 'local' && axis !== 'XYZ') {
-
-                this._offset.applyQuaternion(this._worldQuaternionInv);
-
-            }
-
-            if (axis.indexOf('X') === - 1) this._offset.x = 0;
-            if (axis.indexOf('Y') === - 1) this._offset.y = 0;
-            if (axis.indexOf('Z') === - 1) this._offset.z = 0;
-
-            if (space === 'local' && axis !== 'XYZ') {
-
-                this._offset.applyQuaternion(this._quaternionStart).divide(this._parentScale);
-
-            } else {
-
-                this._offset.applyQuaternion(this._parentQuaternionInv).divide(this._parentScale);
-
-            }
-
-            object.position.copy(this._offset).add(this._positionStart);
-
-            // Apply translation snap
-
-            if (this.translationSnap) {
-
-                if (space === 'local') {
-
-                    object.position.applyQuaternion(_tempQuaternion.copy(this._quaternionStart).invert());
-
-                    if (axis.search('X') !== - 1) {
-
-                        object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    if (axis.search('Y') !== - 1) {
-
-                        object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    if (axis.search('Z') !== - 1) {
-
-                        object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    object.position.applyQuaternion(this._quaternionStart);
-
-                }
-
-                if (space === 'world') {
-
-                    if (object.parent) {
-
-                        object.position.add(_tempVector.setFromMatrixPosition(object.parent.matrixWorld));
-
-                    }
-
-                    if (axis.search('X') !== - 1) {
-
-                        object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    if (axis.search('Y') !== - 1) {
-
-                        object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    if (axis.search('Z') !== - 1) {
-
-                        object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap;
-
-                    }
-
-                    if (object.parent) {
-
-                        object.position.sub(_tempVector.setFromMatrixPosition(object.parent.matrixWorld));
-
-                    }
-
-                }
-
-            }
-
-        } else if (mode === 'scale') {
-
-            if (axis.search('XYZ') !== - 1) {
-
-                let d = this.pointEnd.length() / this.pointStart.length();
-
-                if (this.pointEnd.dot(this.pointStart) < 0) d *= - 1;
-
-                _tempVector2.set(d, d, d);
-
-            } else {
-
-                _tempVector.copy(this.pointStart);
-                _tempVector2.copy(this.pointEnd);
-
-                _tempVector.applyQuaternion(this._worldQuaternionInv);
-                _tempVector2.applyQuaternion(this._worldQuaternionInv);
-
-                _tempVector2.divide(_tempVector);
-
-                if (axis.search('X') === - 1) {
-
-                    _tempVector2.x = 1;
-
-                }
-
-                if (axis.search('Y') === - 1) {
-
-                    _tempVector2.y = 1;
-
-                }
-
-                if (axis.search('Z') === - 1) {
-
-                    _tempVector2.z = 1;
-
-                }
-
-            }
-
-            // Apply scale
-
-            object.scale.copy(this._scaleStart).multiply(_tempVector2);
-
-            if (this.scaleSnap) {
-
-                if (axis.search('X') !== - 1) {
-
-                    object.scale.x = Math.round(object.scale.x / this.scaleSnap) * this.scaleSnap || this.scaleSnap;
-
-                }
-
-                if (axis.search('Y') !== - 1) {
-
-                    object.scale.y = Math.round(object.scale.y / this.scaleSnap) * this.scaleSnap || this.scaleSnap;
-
-                }
-
-                if (axis.search('Z') !== - 1) {
-
-                    object.scale.z = Math.round(object.scale.z / this.scaleSnap) * this.scaleSnap || this.scaleSnap;
-
-                }
-
-            }
-
-        } else if (mode === 'rotate') {
-
-            this._offset.copy(this.pointEnd).sub(this.pointStart);
-
-            const ROTATION_SPEED = 20 / this.worldPosition.distanceTo(_tempVector.setFromMatrixPosition(this.camera.matrixWorld));
-
-            if (axis === 'E') {
-
-                this.rotationAxis.copy(this.eye);
-                this.rotationAngle = this.pointEnd.angleTo(this.pointStart);
-
-                this._startNorm.copy(this.pointStart).normalize();
-                this._endNorm.copy(this.pointEnd).normalize();
-
-                this.rotationAngle *= (this._endNorm.cross(this._startNorm).dot(this.eye) < 0 ? 1 : - 1);
-
-            } else if (axis === 'XYZE') {
-
-                this.rotationAxis.copy(this._offset).cross(this.eye).normalize();
-                this.rotationAngle = this._offset.dot(_tempVector.copy(this.rotationAxis).cross(this.eye)) * ROTATION_SPEED;
-
-            } else if (axis === 'X' || axis === 'Y' || axis === 'Z') {
-
-                this.rotationAxis.copy(_unit[axis]);
-
-                _tempVector.copy(_unit[axis]);
-
-                if (space === 'local') {
-
-                    _tempVector.applyQuaternion(this.worldQuaternion);
-
-                }
-
-                this.rotationAngle = this._offset.dot(_tempVector.cross(this.eye).normalize()) * ROTATION_SPEED;
-
-            }
-
-            // Apply rotation snap
-
-            if (this.rotationSnap) this.rotationAngle = Math.round(this.rotationAngle / this.rotationSnap) * this.rotationSnap;
-
-            // Apply rotate
-            if (space === 'local' && axis !== 'E' && axis !== 'XYZE') {
-
-                object.quaternion.copy(this._quaternionStart);
-                object.quaternion.multiply(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle)).normalize();
-
-            } else {
-
-                this.rotationAxis.applyQuaternion(this._parentQuaternionInv);
-                object.quaternion.copy(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle));
-                object.quaternion.multiply(this._quaternionStart).normalize();
-
-            }
-
-        }
-
-        this.dispatchEvent(_changeEvent);
-        this.dispatchEvent(_objectChangeEvent);
-
-    }
-
-    pointerUp(pointer) {
-
-        if (pointer.button !== 0) return;
-
-        if (this.dragging && (this.axis !== null)) {
-
-            _mouseUpEvent.mode = this.mode;
-            this.dispatchEvent(_mouseUpEvent);
-
-        }
-
-        this.dragging = false;
-        this.axis = null;
-
-    }
-
-    dispose() {
-
-        this.domElement.removeEventListener('pointerdown', this._onPointerDown);
-        this.domElement.removeEventListener('pointermove', this._onPointerHover);
-        this.domElement.removeEventListener('pointermove', this._onPointerMove);
-        this.domElement.removeEventListener('pointerup', this._onPointerUp);
-
-        this.traverse(function (child) {
-
-            if (child.geometry) child.geometry.dispose();
-            if (child.material) child.material.dispose();
-
-        });
-
-    }
-
-    // Set current object
-    attach(object) {
-
-        this.object = object;
-        this.visible = true;
-
-        return this;
-
-    }
-
-    // Detatch from object
-    detach() {
-
-        this.object = undefined;
-        this.visible = false;
-        this.axis = null;
-
-        return this;
-
-    }
-
-    reset() {
-
-        if (!this.enabled) return;
-
-        if (this.dragging) {
-
-            this.object.position.copy(this._positionStart);
-            this.object.quaternion.copy(this._quaternionStart);
-            this.object.scale.copy(this._scaleStart);
-
-            this.dispatchEvent(_changeEvent);
-            this.dispatchEvent(_objectChangeEvent);
-
-            this.pointStart.copy(this.pointEnd);
-
-        }
-
-    }
-
-    getRaycaster() {
-
-        return _raycaster;
-
-    }
-
-    // TODO: deprecate
-
-    getMode() {
-
-        return this.mode;
-
-    }
-
-    setMode(mode) {
-
-        this.mode = mode;
-
-    }
-
-    setTranslationSnap(translationSnap) {
-
-        this.translationSnap = translationSnap;
-
-    }
-
-    setRotationSnap(rotationSnap) {
-
-        this.rotationSnap = rotationSnap;
-
-    }
-
-    setScaleSnap(scaleSnap) {
-
-        this.scaleSnap = scaleSnap;
-
-    }
-
-    setSize(size) {
-
-        this.size = size;
-
-    }
-
-    setSpace(space) {
-
-        this.space = space;
-
-    }
-
-    update() {
-
-        console.warn('THREE.TransformControls: update function has no more functionality and therefore has been deprecated.');
-
-    }
-
-}
-
-// mouse / touch event handlers
-
-function getPointer(event) {
-
-    if (this.domElement.ownerDocument.pointerLockElement) {
-
-        return {
-            x: 0,
-            y: 0,
-            button: event.button
-        };
-
-    } else {
-
-        const rect = this.domElement.getBoundingClientRect();
-
-        return {
-            x: (event.clientX - rect.left) / rect.width * 2 - 1,
-            y: - (event.clientY - rect.top) / rect.height * 2 + 1,
-            button: event.button
-        };
-
-    }
-
-}
-
-function onPointerHover(event) {
-
-    if (!this.enabled) return;
-
-    switch (event.pointerType) {
-
-        case 'mouse':
-        case 'pen':
-            this.pointerHover(this._getPointer(event));
-            break;
-
-    }
-
-}
-
-function onPointerDown(event) {
-
-    if (!this.enabled) return;
-
-    if (!document.pointerLockElement) {
-
-        this.domElement.setPointerCapture(event.pointerId);
-
-    }
-
-    this.domElement.addEventListener('pointermove', this._onPointerMove);
-
-    this.pointerHover(this._getPointer(event));
-    this.pointerDown(this._getPointer(event));
-
-}
-
-function onPointerMove(event) {
-
-    if (!this.enabled) return;
-
-    this.pointerMove(this._getPointer(event));
-
-}
-
-function onPointerUp(event) {
-
-    if (!this.enabled) return;
-
-    this.domElement.releasePointerCapture(event.pointerId);
-
-    this.domElement.removeEventListener('pointermove', this._onPointerMove);
-
-    this.pointerUp(this._getPointer(event));
-
-}
-
-function intersectObjectWithRay(object, raycaster, includeInvisible) {
-
-    const allIntersections = raycaster.intersectObject(object, true);
-
-    for (let i = 0; i < allIntersections.length; i++) {
-
-        if (allIntersections[i].object.visible || includeInvisible) {
-
-            return allIntersections[i];
-
-        }
-
-    }
-
-    return false;
-
-}
-
-//
-
-// Reusable utility variables
-
-const _tempEuler = new Euler();
-const _alignVector = new Vector3(0, 1, 0);
-const _zeroVector = new Vector3(0, 0, 0);
-const _lookAtMatrix = new Matrix4();
-const _tempQuaternion2 = new Quaternion();
-const _identityQuaternion = new Quaternion();
-const _dirVector = new Vector3();
-const _tempMatrix = new Matrix4();
-
-const _unitX = new Vector3(1, 0, 0);
-const _unitY = new Vector3(0, 1, 0);
-const _unitZ = new Vector3(0, 0, 1);
-
-const _v1 = new Vector3();
-const _v2 = new Vector3();
-const _v3 = new Vector3();
-
-class TransformControlsGizmo extends Object3D {
-
-    constructor() {
-
-        super();
-
-        this.isTransformControlsGizmo = true;
-
-        this.type = 'TransformControlsGizmo';
-
-        // shared materials
-
-        const gizmoMaterial = new MeshBasicMaterial({
-            depthTest: false,
-            depthWrite: false,
-            fog: false,
-            toneMapped: false,
-            transparent: true
-        });
-
-        const gizmoLineMaterial = new LineBasicMaterial({
-            depthTest: false,
-            depthWrite: false,
-            fog: false,
-            toneMapped: false,
-            transparent: true
-        });
-
-        // Make unique material for each axis/color
-
-        const matInvisible = gizmoMaterial.clone();
-        matInvisible.opacity = 0.15;
-
-        const matHelper = gizmoLineMaterial.clone();
-        matHelper.opacity = 0.5;
-
-        const matRed = gizmoMaterial.clone();
-        matRed.color.setHex(0xff0000);
-
-        const matGreen = gizmoMaterial.clone();
-        matGreen.color.setHex(0x00ff00);
-
-        const matBlue = gizmoMaterial.clone();
-        matBlue.color.setHex(0x0000ff);
-
-        const matRedTransparent = gizmoMaterial.clone();
-        matRedTransparent.color.setHex(0xff0000);
-        matRedTransparent.opacity = 0.5;
-
-        const matGreenTransparent = gizmoMaterial.clone();
-        matGreenTransparent.color.setHex(0x00ff00);
-        matGreenTransparent.opacity = 0.5;
-
-        const matBlueTransparent = gizmoMaterial.clone();
-        matBlueTransparent.color.setHex(0x0000ff);
-        matBlueTransparent.opacity = 0.5;
-
-        const matWhiteTransparent = gizmoMaterial.clone();
-        matWhiteTransparent.opacity = 0.25;
-
-        const matYellowTransparent = gizmoMaterial.clone();
-        matYellowTransparent.color.setHex(0xffff00);
-        matYellowTransparent.opacity = 0.25;
-
-        const matYellow = gizmoMaterial.clone();
-        matYellow.color.setHex(0xffff00);
-
-        const matGray = gizmoMaterial.clone();
-        matGray.color.setHex(0x787878);
-
-        // reusable geometry
-
-        const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12);
-        arrowGeometry.translate(0, 0.05, 0);
-
-        const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08);
-        scaleHandleGeometry.translate(0, 0.04, 0);
-
-        const lineGeometry = new BufferGeometry();
-        lineGeometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3));
-
-        const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3);
-        lineGeometry2.translate(0, 0.25, 0);
-
-        function CircleGeometry(radius, arc) {
-
-            const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2);
-            geometry.rotateY(Math.PI / 2);
-            geometry.rotateX(Math.PI / 2);
-            return geometry;
-
-        }
-
-        // Special geometry for transform helper. If scaled with position vector it spans from [0,0,0] to position
-
-        function TranslateHelperGeometry() {
-
-            const geometry = new BufferGeometry();
-
-            geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 1, 1], 3));
-
-            return geometry;
-
-        }
-
-        // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
-
-        const gizmoTranslate = {
-            X: [
-                [new Mesh(arrowGeometry, matRed), [0.5, 0, 0], [0, 0, - Math.PI / 2]],
-                [new Mesh(arrowGeometry, matRed), [- 0.5, 0, 0], [0, 0, Math.PI / 2]],
-                [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, - Math.PI / 2]]
-            ],
-            Y: [
-                [new Mesh(arrowGeometry, matGreen), [0, 0.5, 0]],
-                [new Mesh(arrowGeometry, matGreen), [0, - 0.5, 0], [Math.PI, 0, 0]],
-                [new Mesh(lineGeometry2, matGreen)]
-            ],
-            Z: [
-                [new Mesh(arrowGeometry, matBlue), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
-                [new Mesh(arrowGeometry, matBlue), [0, 0, - 0.5], [- Math.PI / 2, 0, 0]],
-                [new Mesh(lineGeometry2, matBlue), null, [Math.PI / 2, 0, 0]]
-            ],
-            XYZ: [
-                [new Mesh(new OctahedronGeometry(0.1, 0), matWhiteTransparent.clone()), [0, 0, 0]]
-            ],
-            XY: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent.clone()), [0.15, 0.15, 0]]
-            ],
-            YZ: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent.clone()), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]
-            ],
-            XZ: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent.clone()), [0.15, 0, 0.15], [- Math.PI / 2, 0, 0]]
-            ]
-        };
-
-        const pickerTranslate = {
-            X: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, - Math.PI / 2]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [- 0.3, 0, 0], [0, 0, Math.PI / 2]]
-            ],
-            Y: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0.3, 0]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, - 0.3, 0], [0, 0, Math.PI]]
-            ],
-            Z: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, - 0.3], [- Math.PI / 2, 0, 0]]
-            ],
-            XYZ: [
-                [new Mesh(new OctahedronGeometry(0.2, 0), matInvisible)]
-            ],
-            XY: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]]
-            ],
-            YZ: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]
-            ],
-            XZ: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [- Math.PI / 2, 0, 0]]
-            ]
-        };
-
-        const helperTranslate = {
-            START: [
-                [new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']
-            ],
-            END: [
-                [new Mesh(new OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']
-            ],
-            DELTA: [
-                [new Line(TranslateHelperGeometry(), matHelper), null, null, null, 'helper']
-            ],
-            X: [
-                [new Line(lineGeometry, matHelper.clone()), [- 1e3, 0, 0], null, [1e6, 1, 1], 'helper']
-            ],
-            Y: [
-                [new Line(lineGeometry, matHelper.clone()), [0, - 1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1], 'helper']
-            ],
-            Z: [
-                [new Line(lineGeometry, matHelper.clone()), [0, 0, - 1e3], [0, - Math.PI / 2, 0], [1e6, 1, 1], 'helper']
-            ]
-        };
-
-        const gizmoRotate = {
-            XYZE: [
-                [new Mesh(CircleGeometry(0.5, 1), matGray), null, [0, Math.PI / 2, 0]]
-            ],
-            X: [
-                [new Mesh(CircleGeometry(0.5, 0.5), matRed)]
-            ],
-            Y: [
-                [new Mesh(CircleGeometry(0.5, 0.5), matGreen), null, [0, 0, - Math.PI / 2]]
-            ],
-            Z: [
-                [new Mesh(CircleGeometry(0.5, 0.5), matBlue), null, [0, Math.PI / 2, 0]]
-            ],
-            E: [
-                [new Mesh(CircleGeometry(0.75, 1), matYellowTransparent), null, [0, Math.PI / 2, 0]]
-            ]
-        };
-
-        const helperRotate = {
-            AXIS: [
-                [new Line(lineGeometry, matHelper.clone()), [- 1e3, 0, 0], null, [1e6, 1, 1], 'helper']
-            ]
-        };
-
-        const pickerRotate = {
-            XYZE: [
-                [new Mesh(new SphereGeometry(0.25, 10, 8), matInvisible)]
-            ],
-            X: [
-                [new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, - Math.PI / 2, - Math.PI / 2]],
-            ],
-            Y: [
-                [new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [Math.PI / 2, 0, 0]],
-            ],
-            Z: [
-                [new Mesh(new TorusGeometry(0.5, 0.1, 4, 24), matInvisible), [0, 0, 0], [0, 0, - Math.PI / 2]],
-            ],
-            E: [
-                [new Mesh(new TorusGeometry(0.75, 0.1, 2, 24), matInvisible)]
-            ]
-        };
-
-        const gizmoScale = {
-            X: [
-                [new Mesh(scaleHandleGeometry, matRed), [0.5, 0, 0], [0, 0, - Math.PI / 2]],
-                [new Mesh(lineGeometry2, matRed), [0, 0, 0], [0, 0, - Math.PI / 2]],
-                [new Mesh(scaleHandleGeometry, matRed), [- 0.5, 0, 0], [0, 0, Math.PI / 2]],
-            ],
-            Y: [
-                [new Mesh(scaleHandleGeometry, matGreen), [0, 0.5, 0]],
-                [new Mesh(lineGeometry2, matGreen)],
-                [new Mesh(scaleHandleGeometry, matGreen), [0, - 0.5, 0], [0, 0, Math.PI]],
-            ],
-            Z: [
-                [new Mesh(scaleHandleGeometry, matBlue), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
-                [new Mesh(lineGeometry2, matBlue), [0, 0, 0], [Math.PI / 2, 0, 0]],
-                [new Mesh(scaleHandleGeometry, matBlue), [0, 0, - 0.5], [- Math.PI / 2, 0, 0]]
-            ],
-            XY: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matBlueTransparent), [0.15, 0.15, 0]]
-            ],
-            YZ: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matRedTransparent), [0, 0.15, 0.15], [0, Math.PI / 2, 0]]
-            ],
-            XZ: [
-                [new Mesh(new BoxGeometry(0.15, 0.15, 0.01), matGreenTransparent), [0.15, 0, 0.15], [- Math.PI / 2, 0, 0]]
-            ],
-            XYZ: [
-                [new Mesh(new BoxGeometry(0.1, 0.1, 0.1), matWhiteTransparent.clone())],
-            ]
-        };
-
-        const pickerScale = {
-            X: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0.3, 0, 0], [0, 0, - Math.PI / 2]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [- 0.3, 0, 0], [0, 0, Math.PI / 2]]
-            ],
-            Y: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0.3, 0]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, - 0.3, 0], [0, 0, Math.PI]]
-            ],
-            Z: [
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, 0.3], [Math.PI / 2, 0, 0]],
-                [new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4), matInvisible), [0, 0, - 0.3], [- Math.PI / 2, 0, 0]]
-            ],
-            XY: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0.15, 0]],
-            ],
-            YZ: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0, 0.15, 0.15], [0, Math.PI / 2, 0]],
-            ],
-            XZ: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.01), matInvisible), [0.15, 0, 0.15], [- Math.PI / 2, 0, 0]],
-            ],
-            XYZ: [
-                [new Mesh(new BoxGeometry(0.2, 0.2, 0.2), matInvisible), [0, 0, 0]],
-            ]
-        };
-
-        const helperScale = {
-            X: [
-                [new Line(lineGeometry, matHelper.clone()), [- 1e3, 0, 0], null, [1e6, 1, 1], 'helper']
-            ],
-            Y: [
-                [new Line(lineGeometry, matHelper.clone()), [0, - 1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1], 'helper']
-            ],
-            Z: [
-                [new Line(lineGeometry, matHelper.clone()), [0, 0, - 1e3], [0, - Math.PI / 2, 0], [1e6, 1, 1], 'helper']
-            ]
-        };
-
-        // Creates an Object3D with gizmos described in custom hierarchy definition.
-
-        function setupGizmo(gizmoMap) {
-
-            const gizmo = new Object3D();
-
-            for (const name in gizmoMap) {
-
-                for (let i = gizmoMap[name].length; i--;) {
-
-                    const object = gizmoMap[name][i][0].clone();
-                    const position = gizmoMap[name][i][1];
-                    const rotation = gizmoMap[name][i][2];
-                    const scale = gizmoMap[name][i][3];
-                    const tag = gizmoMap[name][i][4];
-
-                    // name and tag properties are essential for picking and updating logic.
-                    object.name = name;
-                    object.tag = tag;
-
-                    if (position) {
-
-                        object.position.set(position[0], position[1], position[2]);
-
-                    }
-
-                    if (rotation) {
-
-                        object.rotation.set(rotation[0], rotation[1], rotation[2]);
-
-                    }
-
-                    if (scale) {
-
-                        object.scale.set(scale[0], scale[1], scale[2]);
-
-                    }
-
-                    object.updateMatrix();
-
-                    const tempGeometry = object.geometry.clone();
-                    tempGeometry.applyMatrix4(object.matrix);
-                    object.geometry = tempGeometry;
-                    object.renderOrder = Infinity;
-
-                    object.position.set(0, 0, 0);
-                    object.rotation.set(0, 0, 0);
-                    object.scale.set(1, 1, 1);
-
-                    gizmo.add(object);
-
-                }
-
-            }
-
-            return gizmo;
-
-        }
-
-        // Gizmo creation
-
-        this.gizmo = {};
-        this.picker = {};
-        this.helper = {};
-
-        this.add(this.gizmo['translate'] = setupGizmo(gizmoTranslate));
-        this.add(this.gizmo['rotate'] = setupGizmo(gizmoRotate));
-        this.add(this.gizmo['scale'] = setupGizmo(gizmoScale));
-        this.add(this.picker['translate'] = setupGizmo(pickerTranslate));
-        this.add(this.picker['rotate'] = setupGizmo(pickerRotate));
-        this.add(this.picker['scale'] = setupGizmo(pickerScale));
-        this.add(this.helper['translate'] = setupGizmo(helperTranslate));
-        this.add(this.helper['rotate'] = setupGizmo(helperRotate));
-        this.add(this.helper['scale'] = setupGizmo(helperScale));
-
-        // Pickers should be hidden always
-
-        this.picker['translate'].visible = false;
-        this.picker['rotate'].visible = false;
-        this.picker['scale'].visible = false;
-
-    }
-
-    // updateMatrixWorld will update transformations and appearance of individual handles
-
-    updateMatrixWorld(force) {
-
-        const space = (this.mode === 'scale') ? 'local' : this.space; // scale always oriented to local rotation
-
-        const quaternion = (space === 'local') ? this.worldQuaternion : _identityQuaternion;
-
-        // Show only gizmos for current transform mode
-
-        this.gizmo['translate'].visible = this.mode === 'translate';
-        this.gizmo['rotate'].visible = this.mode === 'rotate';
-        this.gizmo['scale'].visible = this.mode === 'scale';
-
-        this.helper['translate'].visible = this.mode === 'translate';
-        this.helper['rotate'].visible = this.mode === 'rotate';
-        this.helper['scale'].visible = this.mode === 'scale';
-
-
-        let handles = [];
-        handles = handles.concat(this.picker[this.mode].children);
-        handles = handles.concat(this.gizmo[this.mode].children);
-        handles = handles.concat(this.helper[this.mode].children);
-
-        for (let i = 0; i < handles.length; i++) {
-
-            const handle = handles[i];
-
-            // hide aligned to camera
-
-            handle.visible = true;
-            handle.rotation.set(0, 0, 0);
-            handle.position.copy(this.worldPosition);
-
-            let factor;
-
-            if (this.camera.isOrthographicCamera) {
-
-                factor = (this.camera.top - this.camera.bottom) / this.camera.zoom;
-
-            } else {
-
-                factor = this.worldPosition.distanceTo(this.cameraPosition) * Math.min(1.9 * Math.tan(Math.PI * this.camera.fov / 360) / this.camera.zoom, 7);
-
-            }
-
-            handle.scale.set(1, 1, 1).multiplyScalar(factor * this.size / 4);
-
-            // TODO: simplify helpers and consider decoupling from gizmo
-
-            if (handle.tag === 'helper') {
-
-                handle.visible = false;
-
-                if (handle.name === 'AXIS') {
-
-                    handle.position.copy(this.worldPositionStart);
-                    handle.visible = !!this.axis;
-
-                    if (this.axis === 'X') {
-
-                        _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, 0));
-                        handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
-
-                        if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
-
-                            handle.visible = false;
-
-                        }
-
-                    }
-
-                    if (this.axis === 'Y') {
-
-                        _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, Math.PI / 2));
-                        handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
-
-                        if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
-
-                            handle.visible = false;
-
-                        }
-
-                    }
-
-                    if (this.axis === 'Z') {
-
-                        _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0));
-                        handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
-
-                        if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
-
-                            handle.visible = false;
-
-                        }
-
-                    }
-
-                    if (this.axis === 'XYZE') {
-
-                        _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.PI / 2, 0));
-                        _alignVector.copy(this.rotationAxis);
-                        handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(_zeroVector, _alignVector, _unitY));
-                        handle.quaternion.multiply(_tempQuaternion);
-                        handle.visible = this.dragging;
-
-                    }
-
-                    if (this.axis === 'E') {
-
-                        handle.visible = false;
-
-                    }
-
-
-                } else if (handle.name === 'START') {
-
-                    handle.position.copy(this.worldPositionStart);
-                    handle.visible = this.dragging;
-
-                } else if (handle.name === 'END') {
-
-                    handle.position.copy(this.worldPosition);
-                    handle.visible = this.dragging;
-
-                } else if (handle.name === 'DELTA') {
-
-                    handle.position.copy(this.worldPositionStart);
-                    handle.quaternion.copy(this.worldQuaternionStart);
-                    _tempVector.set(1e-10, 1e-10, 1e-10).add(this.worldPositionStart).sub(this.worldPosition).multiplyScalar(- 1);
-                    _tempVector.applyQuaternion(this.worldQuaternionStart.clone().invert());
-                    handle.scale.copy(_tempVector);
-                    handle.visible = this.dragging;
-
-                } else {
-
-                    handle.quaternion.copy(quaternion);
-
-                    if (this.dragging) {
-
-                        handle.position.copy(this.worldPositionStart);
+                        spherical.theta += sphericalDelta.theta * scope.dampingFactor;
+                        spherical.phi += sphericalDelta.phi * scope.dampingFactor;
 
                     } else {
 
-                        handle.position.copy(this.worldPosition);
+                        spherical.theta += sphericalDelta.theta;
+                        spherical.phi += sphericalDelta.phi;
+
+                    } // restrict theta to be between desired limits
+
+
+                    let min = scope.minAzimuthAngle;
+                    let max = scope.maxAzimuthAngle;
+
+                    if (isFinite(min) && isFinite(max)) {
+
+                        if (min < - Math.PI) min += twoPI; else if (min > Math.PI) min -= twoPI;
+                        if (max < - Math.PI) max += twoPI; else if (max > Math.PI) max -= twoPI;
+
+                        if (min <= max) {
+
+                            spherical.theta = Math.max(min, Math.min(max, spherical.theta));
+
+                        } else {
+
+                            spherical.theta = spherical.theta > (min + max) / 2 ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
+
+                        }
+
+                    } // restrict phi to be between desired limits
+
+
+                    spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+                    spherical.makeSafe();
+                    spherical.radius *= scale; // restrict radius to be between desired limits
+
+                    spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius)); // move target to panned location
+
+                    if (scope.enableDamping === true) {
+
+                        scope.target.addScaledVector(panOffset, scope.dampingFactor);
+
+                    } else {
+
+                        scope.target.add(panOffset);
 
                     }
 
-                    if (this.axis) {
+                    offset.setFromSpherical(spherical); // rotate offset back to "camera-up-vector-is-up" space
 
-                        handle.visible = this.axis.search(handle.name) !== - 1;
+                    offset.applyQuaternion(quatInverse);
+                    position.copy(scope.target).add(offset);
+                    scope.object.lookAt(scope.target);
+
+                    if (scope.enableDamping === true) {
+
+                        sphericalDelta.theta *= 1 - scope.dampingFactor;
+                        sphericalDelta.phi *= 1 - scope.dampingFactor;
+                        panOffset.multiplyScalar(1 - scope.dampingFactor);
+
+                    } else {
+
+                        sphericalDelta.set(0, 0, 0);
+                        panOffset.set(0, 0, 0);
 
                     }
 
-                }
+                    scale = 1; // update condition is:
+                    // min(camera displacement, camera rotation in radians)^2 > EPS
+                    // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
-                // If updating helper, skip rest of the loop
-                continue;
+                    if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+
+                        scope.dispatchEvent(_changeEvent);
+                        lastPosition.copy(scope.object.position);
+                        lastQuaternion.copy(scope.object.quaternion);
+                        zoomChanged = false;
+                        return true;
+
+                    }
+
+                    return false;
+
+                };
+
+            }();
+
+            this.dispose = function () {
+
+                scope.domElement.removeEventListener('contextmenu', onContextMenu);
+                scope.domElement.removeEventListener('pointerdown', onPointerDown);
+                scope.domElement.removeEventListener('pointercancel', onPointerCancel);
+                scope.domElement.removeEventListener('wheel', onMouseWheel);
+                scope.domElement.removeEventListener('pointermove', onPointerMove);
+                scope.domElement.removeEventListener('pointerup', onPointerUp);
+
+                if (scope._domElementKeyEvents !== null) {
+
+                    scope._domElementKeyEvents.removeEventListener('keydown', onKeyDown);
+
+                } //scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+
+            }; //
+            // internals
+            //
+
+
+            const scope = this;
+            const STATE = {
+                NONE: - 1,
+                ROTATE: 0,
+                DOLLY: 1,
+                PAN: 2,
+                TOUCH_ROTATE: 3,
+                TOUCH_PAN: 4,
+                TOUCH_DOLLY_PAN: 5,
+                TOUCH_DOLLY_ROTATE: 6
+            };
+            let state = STATE.NONE;
+            const EPS = 0.000001; // current position in spherical coordinates
+
+            const spherical = new THREE.Spherical();
+            const sphericalDelta = new THREE.Spherical();
+            let scale = 1;
+            const panOffset = new THREE.Vector3();
+            let zoomChanged = false;
+            const rotateStart = new THREE.Vector2();
+            const rotateEnd = new THREE.Vector2();
+            const rotateDelta = new THREE.Vector2();
+            const panStart = new THREE.Vector2();
+            const panEnd = new THREE.Vector2();
+            const panDelta = new THREE.Vector2();
+            const dollyStart = new THREE.Vector2();
+            const dollyEnd = new THREE.Vector2();
+            const dollyDelta = new THREE.Vector2();
+            const pointers = [];
+            const pointerPositions = {};
+
+            function getAutoRotationAngle() {
+
+                return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
 
             }
 
-            // Align handles to current local or world rotation
+            function getZoomScale() {
 
-            handle.quaternion.copy(quaternion);
+                return Math.pow(0.95, scope.zoomSpeed);
 
-            if (this.mode === 'translate' || this.mode === 'scale') {
+            }
 
-                // Hide translate and scale axis facing the camera
+            function rotateLeft(angle) {
 
-                const AXIS_HIDE_TRESHOLD = 0.99;
-                const PLANE_HIDE_TRESHOLD = 0.2;
+                sphericalDelta.theta -= angle;
 
-                if (handle.name === 'X') {
+            }
 
-                    if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+            function rotateUp(angle) {
 
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+                sphericalDelta.phi -= angle;
 
-                    }
+            }
 
-                }
+            const panLeft = function () {
 
-                if (handle.name === 'Y') {
+                const v = new THREE.Vector3();
+                return function panLeft(distance, objectMatrix) {
 
-                    if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+                    v.setFromMatrixColumn(objectMatrix, 0); // get X column of objectMatrix
 
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+                    v.multiplyScalar(- distance);
+                    panOffset.add(v);
 
-                    }
+                };
 
-                }
+            }();
 
-                if (handle.name === 'Z') {
+            const panUp = function () {
 
-                    if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+                const v = new THREE.Vector3();
+                return function panUp(distance, objectMatrix) {
 
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+                    if (scope.screenSpacePanning === true) {
 
-                    }
+                        v.setFromMatrixColumn(objectMatrix, 1);
 
-                }
+                    } else {
 
-                if (handle.name === 'XY') {
-
-                    if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye)) < PLANE_HIDE_TRESHOLD) {
-
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+                        v.setFromMatrixColumn(objectMatrix, 0);
+                        v.crossVectors(scope.object.up, v);
 
                     }
 
-                }
+                    v.multiplyScalar(distance);
+                    panOffset.add(v);
 
-                if (handle.name === 'YZ') {
+                };
 
-                    if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) < PLANE_HIDE_TRESHOLD) {
+            }(); // deltaX and deltaY are in pixels; right and down are positive
 
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+
+            const pan = function () {
+
+                const offset = new THREE.Vector3();
+                return function pan(deltaX, deltaY) {
+
+                    const element = scope.domElement;
+
+                    if (scope.object.isPerspectiveCamera) {
+
+                        // perspective
+                        const position = scope.object.position;
+                        offset.copy(position).sub(scope.target);
+                        let targetDistance = offset.length(); // half of the fov is center to top of screen
+
+                        targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180.0); // we use only clientHeight here so aspect ratio does not distort speed
+
+                        panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
+                        panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
+
+                    } else if (scope.object.isOrthographicCamera) {
+
+                        // orthographic
+                        panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth, scope.object.matrix);
+                        panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight, scope.object.matrix);
+
+                    } else {
+
+                        // camera neither orthographic nor perspective
+                        console.warn('WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
+                        scope.enablePan = false;
 
                     }
 
-                }
+                };
 
-                if (handle.name === 'XZ') {
+            }();
 
-                    if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) < PLANE_HIDE_TRESHOLD) {
+            function dollyOut(dollyScale) {
 
-                        handle.scale.set(1e-10, 1e-10, 1e-10);
-                        handle.visible = false;
+                if (scope.object.isPerspectiveCamera) {
 
-                    }
+                    scale /= dollyScale;
 
-                }
+                } else if (scope.object.isOrthographicCamera) {
 
-            } else if (this.mode === 'rotate') {
+                    scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
+                    scope.object.updateProjectionMatrix();
+                    zoomChanged = true;
 
-                // Align handles to current local or world rotation
+                } else {
 
-                _tempQuaternion2.copy(quaternion);
-                _alignVector.copy(this.eye).applyQuaternion(_tempQuaternion.copy(quaternion).invert());
-
-                if (handle.name.search('E') !== - 1) {
-
-                    handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(this.eye, _zeroVector, _unitY));
-
-                }
-
-                if (handle.name === 'X') {
-
-                    _tempQuaternion.setFromAxisAngle(_unitX, Math.atan2(- _alignVector.y, _alignVector.z));
-                    _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion);
-                    handle.quaternion.copy(_tempQuaternion);
-
-                }
-
-                if (handle.name === 'Y') {
-
-                    _tempQuaternion.setFromAxisAngle(_unitY, Math.atan2(_alignVector.x, _alignVector.z));
-                    _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion);
-                    handle.quaternion.copy(_tempQuaternion);
-
-                }
-
-                if (handle.name === 'Z') {
-
-                    _tempQuaternion.setFromAxisAngle(_unitZ, Math.atan2(_alignVector.y, _alignVector.x));
-                    _tempQuaternion.multiplyQuaternions(_tempQuaternion2, _tempQuaternion);
-                    handle.quaternion.copy(_tempQuaternion);
+                    console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+                    scope.enableZoom = false;
 
                 }
 
             }
 
-            // Hide disabled axes
-            handle.visible = handle.visible && (handle.name.indexOf('X') === - 1 || this.showX);
-            handle.visible = handle.visible && (handle.name.indexOf('Y') === - 1 || this.showY);
-            handle.visible = handle.visible && (handle.name.indexOf('Z') === - 1 || this.showZ);
-            handle.visible = handle.visible && (handle.name.indexOf('E') === - 1 || (this.showX && this.showY && this.showZ));
+            function dollyIn(dollyScale) {
 
-            // highlight selected axis
+                if (scope.object.isPerspectiveCamera) {
 
-            handle.material._color = handle.material._color || handle.material.color.clone();
-            handle.material._opacity = handle.material._opacity || handle.material.opacity;
+                    scale *= dollyScale;
 
-            handle.material.color.copy(handle.material._color);
-            handle.material.opacity = handle.material._opacity;
+                } else if (scope.object.isOrthographicCamera) {
 
-            if (this.enabled && this.axis) {
+                    scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
+                    scope.object.updateProjectionMatrix();
+                    zoomChanged = true;
 
-                if (handle.name === this.axis) {
+                } else {
 
-                    handle.material.color.setHex(0xffff00);
-                    handle.material.opacity = 1.0;
+                    console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+                    scope.enableZoom = false;
 
-                } else if (this.axis.split('').some(function (a) {
+                }
 
-                    return handle.name === a;
+            } //
+            // event callbacks - update the object state
+            //
 
-                })) {
 
-                    handle.material.color.setHex(0xffff00);
-                    handle.material.opacity = 1.0;
+            function handleMouseDownRotate(event) {
+
+                rotateStart.set(event.clientX, event.clientY);
+
+            }
+
+            function handleMouseDownDolly(event) {
+
+                dollyStart.set(event.clientX, event.clientY);
+
+            }
+
+            function handleMouseDownPan(event) {
+
+                panStart.set(event.clientX, event.clientY);
+
+            }
+
+            function handleMouseMoveRotate(event) {
+
+                rotateEnd.set(event.clientX, event.clientY);
+                rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+                const element = scope.domElement;
+                rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+
+                rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+                rotateStart.copy(rotateEnd);
+                scope.update();
+
+            }
+
+            function handleMouseMoveDolly(event) {
+
+                dollyEnd.set(event.clientX, event.clientY);
+                dollyDelta.subVectors(dollyEnd, dollyStart);
+
+                if (dollyDelta.y > 0) {
+
+                    dollyOut(getZoomScale());
+
+                } else if (dollyDelta.y < 0) {
+
+                    dollyIn(getZoomScale());
+
+                }
+
+                dollyStart.copy(dollyEnd);
+                scope.update();
+
+            }
+
+            function handleMouseMovePan(event) {
+
+                panEnd.set(event.clientX, event.clientY);
+                panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+                pan(panDelta.x, panDelta.y);
+                panStart.copy(panEnd);
+                scope.update();
+
+            }
+
+            function handleMouseWheel(event) {
+
+                if (event.deltaY < 0) {
+
+                    dollyIn(getZoomScale());
+
+                } else if (event.deltaY > 0) {
+
+                    dollyOut(getZoomScale());
+
+                }
+
+                scope.update();
+
+            }
+
+            function handleKeyDown(event) {
+
+                let needsUpdate = false;
+
+                switch (event.code) {
+
+                    case scope.keys.UP:
+                        pan(0, scope.keyPanSpeed);
+                        needsUpdate = true;
+                        break;
+
+                    case scope.keys.BOTTOM:
+                        pan(0, - scope.keyPanSpeed);
+                        needsUpdate = true;
+                        break;
+
+                    case scope.keys.LEFT:
+                        pan(scope.keyPanSpeed, 0);
+                        needsUpdate = true;
+                        break;
+
+                    case scope.keys.RIGHT:
+                        pan(- scope.keyPanSpeed, 0);
+                        needsUpdate = true;
+                        break;
+
+                }
+
+                if (needsUpdate) {
+
+                    // prevent the browser from scrolling on cursor keys
+                    event.preventDefault();
+                    scope.update();
 
                 }
 
             }
 
-        }
+            function handleTouchStartRotate() {
 
-        super.updateMatrixWorld(force);
+                if (pointers.length === 1) {
 
-    }
+                    rotateStart.set(pointers[0].pageX, pointers[0].pageY);
 
-}
+                } else {
 
-//
+                    const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
+                    const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
+                    rotateStart.set(x, y);
 
-class TransformControlsPlane extends Mesh {
+                }
 
-    constructor() {
+            }
 
-        super(
-            new PlaneGeometry(100000, 100000, 2, 2),
-            new MeshBasicMaterial({ visible: false, wireframe: true, side: DoubleSide, transparent: true, opacity: 0.1, toneMapped: false })
-        );
+            function handleTouchStartPan() {
 
-        this.isTransformControlsPlane = true;
+                if (pointers.length === 1) {
 
-        this.type = 'TransformControlsPlane';
+                    panStart.set(pointers[0].pageX, pointers[0].pageY);
 
-    }
+                } else {
 
-    updateMatrixWorld(force) {
+                    const x = 0.5 * (pointers[0].pageX + pointers[1].pageX);
+                    const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
+                    panStart.set(x, y);
 
-        let space = this.space;
+                }
 
-        this.position.copy(this.worldPosition);
+            }
 
-        if (this.mode === 'scale') space = 'local'; // scale always oriented to local rotation
+            function handleTouchStartDolly() {
 
-        _v1.copy(_unitX).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion);
-        _v2.copy(_unitY).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion);
-        _v3.copy(_unitZ).applyQuaternion(space === 'local' ? this.worldQuaternion : _identityQuaternion);
+                const dx = pointers[0].pageX - pointers[1].pageX;
+                const dy = pointers[0].pageY - pointers[1].pageY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                dollyStart.set(0, distance);
 
-        // Align the plane for current transform mode, axis and space.
+            }
 
-        _alignVector.copy(_v2);
+            function handleTouchStartDollyPan() {
 
-        switch (this.mode) {
+                if (scope.enableZoom) handleTouchStartDolly();
+                if (scope.enablePan) handleTouchStartPan();
 
-            case 'translate':
-            case 'scale':
-                switch (this.axis) {
+            }
 
-                    case 'X':
-                        _alignVector.copy(this.eye).cross(_v1);
-                        _dirVector.copy(_v1).cross(_alignVector);
+            function handleTouchStartDollyRotate() {
+
+                if (scope.enableZoom) handleTouchStartDolly();
+                if (scope.enableRotate) handleTouchStartRotate();
+
+            }
+
+            function handleTouchMoveRotate(event) {
+
+                if (pointers.length == 1) {
+
+                    rotateEnd.set(event.pageX, event.pageY);
+
+                } else {
+
+                    const position = getSecondPointerPosition(event);
+                    const x = 0.5 * (event.pageX + position.x);
+                    const y = 0.5 * (event.pageY + position.y);
+                    rotateEnd.set(x, y);
+
+                }
+
+                rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
+                const element = scope.domElement;
+                rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+
+                rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+                rotateStart.copy(rotateEnd);
+
+            }
+
+            function handleTouchMovePan(event) {
+
+                if (pointers.length === 1) {
+
+                    panEnd.set(event.pageX, event.pageY);
+
+                } else {
+
+                    const position = getSecondPointerPosition(event);
+                    const x = 0.5 * (event.pageX + position.x);
+                    const y = 0.5 * (event.pageY + position.y);
+                    panEnd.set(x, y);
+
+                }
+
+                panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+                pan(panDelta.x, panDelta.y);
+                panStart.copy(panEnd);
+
+            }
+
+            function handleTouchMoveDolly(event) {
+
+                const position = getSecondPointerPosition(event);
+                const dx = event.pageX - position.x;
+                const dy = event.pageY - position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                dollyEnd.set(0, distance);
+                dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+                dollyOut(dollyDelta.y);
+                dollyStart.copy(dollyEnd);
+
+            }
+
+            function handleTouchMoveDollyPan(event) {
+
+                if (scope.enableZoom) handleTouchMoveDolly(event);
+                if (scope.enablePan) handleTouchMovePan(event);
+
+            }
+
+            function handleTouchMoveDollyRotate(event) {
+
+                if (scope.enableZoom) handleTouchMoveDolly(event);
+                if (scope.enableRotate) handleTouchMoveRotate(event);
+
+            } //
+            // event handlers - FSM: listen for events and reset state
+            //
+
+
+            function onPointerDown(event) {
+
+                if (scope.enabled === false) return;
+
+                if (pointers.length === 0) {
+
+                    scope.domElement.setPointerCapture(event.pointerId);
+                    scope.domElement.addEventListener('pointermove', onPointerMove);
+                    scope.domElement.addEventListener('pointerup', onPointerUp);
+
+                } //
+
+
+                addPointer(event);
+
+                if (event.pointerType === 'touch') {
+
+                    onTouchStart(event);
+
+                } else {
+
+                    onMouseDown(event);
+
+                }
+
+            }
+
+            function onPointerMove(event) {
+
+                if (scope.enabled === false) return;
+
+                if (event.pointerType === 'touch') {
+
+                    onTouchMove(event);
+
+                } else {
+
+                    onMouseMove(event);
+
+                }
+
+            }
+
+            function onPointerUp(event) {
+
+                removePointer(event);
+
+                if (pointers.length === 0) {
+
+                    scope.domElement.releasePointerCapture(event.pointerId);
+                    scope.domElement.removeEventListener('pointermove', onPointerMove);
+                    scope.domElement.removeEventListener('pointerup', onPointerUp);
+
+                }
+
+                scope.dispatchEvent(_endEvent);
+                state = STATE.NONE;
+
+            }
+
+            function onPointerCancel(event) {
+
+                removePointer(event);
+
+            }
+
+            function onMouseDown(event) {
+
+                let mouseAction;
+
+                switch (event.button) {
+
+                    case 0:
+                        mouseAction = scope.mouseButtons.LEFT;
                         break;
-                    case 'Y':
-                        _alignVector.copy(this.eye).cross(_v2);
-                        _dirVector.copy(_v2).cross(_alignVector);
+
+                    case 1:
+                        mouseAction = scope.mouseButtons.MIDDLE;
                         break;
-                    case 'Z':
-                        _alignVector.copy(this.eye).cross(_v3);
-                        _dirVector.copy(_v3).cross(_alignVector);
+
+                    case 2:
+                        mouseAction = scope.mouseButtons.RIGHT;
                         break;
-                    case 'XY':
-                        _dirVector.copy(_v3);
+
+                    default:
+                        mouseAction = - 1;
+
+                }
+
+                switch (mouseAction) {
+
+                    case THREE.MOUSE.DOLLY:
+                        if (scope.enableZoom === false) return;
+                        handleMouseDownDolly(event);
+                        state = STATE.DOLLY;
                         break;
-                    case 'YZ':
-                        _dirVector.copy(_v1);
+
+                    case THREE.MOUSE.ROTATE:
+                        if (event.ctrlKey || event.metaKey || event.shiftKey) {
+
+                            if (scope.enablePan === false) return;
+                            handleMouseDownPan(event);
+                            state = STATE.PAN;
+
+                        } else {
+
+                            if (scope.enableRotate === false) return;
+                            handleMouseDownRotate(event);
+                            state = STATE.ROTATE;
+
+                        }
+
                         break;
-                    case 'XZ':
-                        _alignVector.copy(_v3);
-                        _dirVector.copy(_v2);
+
+                    case THREE.MOUSE.PAN:
+                        if (event.ctrlKey || event.metaKey || event.shiftKey) {
+
+                            if (scope.enableRotate === false) return;
+                            handleMouseDownRotate(event);
+                            state = STATE.ROTATE;
+
+                        } else {
+
+                            if (scope.enablePan === false) return;
+                            handleMouseDownPan(event);
+                            state = STATE.PAN;
+
+                        }
+
                         break;
-                    case 'XYZ':
-                    case 'E':
-                        _dirVector.set(0, 0, 0);
+
+                    default:
+                        state = STATE.NONE;
+
+                }
+
+                if (state !== STATE.NONE) {
+
+                    scope.dispatchEvent(_startEvent);
+
+                }
+
+            }
+
+            function onMouseMove(event) {
+
+                if (scope.enabled === false) return;
+
+                switch (state) {
+
+                    case STATE.ROTATE:
+                        if (scope.enableRotate === false) return;
+                        handleMouseMoveRotate(event);
+                        break;
+
+                    case STATE.DOLLY:
+                        if (scope.enableZoom === false) return;
+                        handleMouseMoveDolly(event);
+                        break;
+
+                    case STATE.PAN:
+                        if (scope.enablePan === false) return;
+                        handleMouseMovePan(event);
                         break;
 
                 }
 
-                break;
-            case 'rotate':
-            default:
-                // special case for rotate
-                _dirVector.set(0, 0, 0);
+            }
+
+            function onMouseWheel(event) {
+
+                if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE) return;
+                event.preventDefault();
+                scope.dispatchEvent(_startEvent);
+                handleMouseWheel(event);
+                scope.dispatchEvent(_endEvent);
+
+            }
+
+            function onKeyDown(event) {
+
+                if (scope.enabled === false || scope.enablePan === false) return;
+                handleKeyDown(event);
+
+            }
+
+            function onTouchStart(event) {
+
+                trackPointer(event);
+
+                switch (pointers.length) {
+
+                    case 1:
+                        switch (scope.touches.ONE) {
+
+                            case THREE.TOUCH.ROTATE:
+                                if (scope.enableRotate === false) return;
+                                handleTouchStartRotate();
+                                state = STATE.TOUCH_ROTATE;
+                                break;
+
+                            case THREE.TOUCH.PAN:
+                                if (scope.enablePan === false) return;
+                                handleTouchStartPan();
+                                state = STATE.TOUCH_PAN;
+                                break;
+
+                            default:
+                                state = STATE.NONE;
+
+                        }
+
+                        break;
+
+                    case 2:
+                        switch (scope.touches.TWO) {
+
+                            case THREE.TOUCH.DOLLY_PAN:
+                                if (scope.enableZoom === false && scope.enablePan === false) return;
+                                handleTouchStartDollyPan();
+                                state = STATE.TOUCH_DOLLY_PAN;
+                                break;
+
+                            case THREE.TOUCH.DOLLY_ROTATE:
+                                if (scope.enableZoom === false && scope.enableRotate === false) return;
+                                handleTouchStartDollyRotate();
+                                state = STATE.TOUCH_DOLLY_ROTATE;
+                                break;
+
+                            default:
+                                state = STATE.NONE;
+
+                        }
+
+                        break;
+
+                    default:
+                        state = STATE.NONE;
+
+                }
+
+                if (state !== STATE.NONE) {
+
+                    scope.dispatchEvent(_startEvent);
+
+                }
+
+            }
+
+            function onTouchMove(event) {
+
+                trackPointer(event);
+
+                switch (state) {
+
+                    case STATE.TOUCH_ROTATE:
+                        if (scope.enableRotate === false) return;
+                        handleTouchMoveRotate(event);
+                        scope.update();
+                        break;
+
+                    case STATE.TOUCH_PAN:
+                        if (scope.enablePan === false) return;
+                        handleTouchMovePan(event);
+                        scope.update();
+                        break;
+
+                    case STATE.TOUCH_DOLLY_PAN:
+                        if (scope.enableZoom === false && scope.enablePan === false) return;
+                        handleTouchMoveDollyPan(event);
+                        scope.update();
+                        break;
+
+                    case STATE.TOUCH_DOLLY_ROTATE:
+                        if (scope.enableZoom === false && scope.enableRotate === false) return;
+                        handleTouchMoveDollyRotate(event);
+                        scope.update();
+                        break;
+
+                    default:
+                        state = STATE.NONE;
+
+                }
+
+            }
+
+            function onContextMenu(event) {
+
+                if (scope.enabled === false) return;
+                event.preventDefault();
+
+            }
+
+            function addPointer(event) {
+
+                pointers.push(event);
+
+            }
+
+            function removePointer(event) {
+
+                delete pointerPositions[event.pointerId];
+
+                for (let i = 0; i < pointers.length; i++) {
+
+                    if (pointers[i].pointerId == event.pointerId) {
+
+                        pointers.splice(i, 1);
+                        return;
+
+                    }
+
+                }
+
+            }
+
+            function trackPointer(event) {
+
+                let position = pointerPositions[event.pointerId];
+
+                if (position === undefined) {
+
+                    position = new THREE.Vector2();
+                    pointerPositions[event.pointerId] = position;
+
+                }
+
+                position.set(event.pageX, event.pageY);
+
+            }
+
+            function getSecondPointerPosition(event) {
+
+                const pointer = event.pointerId === pointers[0].pointerId ? pointers[1] : pointers[0];
+                return pointerPositions[pointer.pointerId];
+
+            } //
+
+
+            scope.domElement.addEventListener('contextmenu', onContextMenu);
+            scope.domElement.addEventListener('pointerdown', onPointerDown);
+            scope.domElement.addEventListener('pointercancel', onPointerCancel);
+            scope.domElement.addEventListener('wheel', onMouseWheel, {
+                passive: false
+            }); // force an update at start
+
+            this.update();
 
         }
 
-        if (_dirVector.length() === 0) {
+    } // This set of controls performs orbiting, dollying (zooming), and panning.
+    // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+    // This is very similar to OrbitControls, another set of touch behavior
+    //
+    //    Orbit - right mouse, or left mouse + ctrl/meta/shiftKey / touch: two-finger rotate
+    //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
+    //    Pan - left mouse, or arrow keys / touch: one-finger move
 
-            // If in rotate mode, make the plane parallel to camera
-            this.quaternion.copy(this.cameraQuaternion);
 
-        } else {
+    class MapControls extends OrbitControls {
 
-            _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector);
+        constructor(object, domElement) {
 
-            this.quaternion.setFromRotationMatrix(_tempMatrix);
+            super(object, domElement);
+            this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
+
+            this.mouseButtons.LEFT = THREE.MOUSE.PAN;
+            this.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+            this.touches.ONE = THREE.TOUCH.PAN;
+            this.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
 
         }
-
-        super.updateMatrixWorld(force);
 
     }
 
-}
+    THREE.MapControls = MapControls;
+    THREE.OrbitControls = OrbitControls;
 
-export { TransformControls, TransformControlsGizmo, TransformControlsPlane };
+})();
