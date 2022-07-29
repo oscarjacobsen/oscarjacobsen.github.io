@@ -113712,8 +113712,8 @@ class IfcViewerAPI {
 
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({container});
-viewer.axes.setAxes();
-viewer.grid.setGrid();
+// viewer.axes.setAxes();
+// viewer.grid.setGrid();
 viewer.IFC.setWasmPath("../../../");
 
 init();
