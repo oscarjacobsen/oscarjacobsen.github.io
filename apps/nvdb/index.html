@@ -37,6 +37,11 @@
     input.addEventListener("change", function () {
       if (this.files && this.files[0]) {
         var myFile = this.files[0];
+
+        if ("https" in myFile || "http" in myFile){
+          fetch(myFile).then((r)=>{r.text().then((d)=>{let CONTENT = d})})
+        }
+
         var reader = new FileReader();
     
         reader.addEventListener('load', function (e) {
