@@ -113710,10 +113710,14 @@ class IfcViewerAPI {
     }
 }
 
+////////////
+// App.js //
+////////////
+
 const container = document.getElementById('viewer-container');
 const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
-viewer.grid.setGrid();
-viewer.axes.setAxes();
+// viewer.grid.setGrid();
+// viewer.axes.setAxes();
 
 async function loadIfc(url) {
     await viewer.IFC.setWasmPath("../../../");
