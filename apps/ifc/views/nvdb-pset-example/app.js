@@ -7,12 +7,12 @@ const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff
 // viewer.axes.setAxes();
 
 async function loadIfc(url) {
-    await viewer.IFC.setWasmPath("../");
+    await viewer.IFC.setWasmPath("./");
     const model = await viewer.IFC.loadIfcUrl(url);
     viewer.shadowDropper.renderShadow(model.modelID);
 }
 
-loadIfc('../IFC/nvdb/nvdb_ifc-ps.ifc');
+loadIfc('nvdb_ifc-ps.ifc');
 
 window.ondblclick = () => viewer.IFC.selector.pickIfcItem(true);
 window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
