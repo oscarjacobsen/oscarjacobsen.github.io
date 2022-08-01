@@ -83376,7 +83376,7 @@ window.addEventListener("resize", () => {
 const ifcModels = [];
 const ifcLoader = new IFCLoader();
 ifcLoader.ifcManager.setWasmPath("./");
-ifcLoader.load("oscar-jacobsen-3d.ifc", (ifcModel) => {
+ifcLoader.load("oscar-jacobsen-cv-3d.ifc", (ifcModel) => {
     ifcModels.push(ifcModel);
     scene.add(ifcModel);
 });
