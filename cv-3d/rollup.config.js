@@ -1,14 +1,12 @@
-import resolve from '@rollup/plugin-node-resolve';
+import resolve from "@rollup/plugin-node-resolve";
 
 export default {
-  input: 'examples/web-ifc-three/picking-properties/app.js',
+  input: "src/app.js",
   output: [
     {
-      format: 'esm',
-      file: 'examples/web-ifc-three/picking-properties/bundle.js'
+      format: "esm",
+      file: "src/bundle.js",
     },
   ],
-  plugins: [
-    resolve(),
-  ]
+  plugins: [resolve()],
 };
