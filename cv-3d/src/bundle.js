@@ -84855,9 +84855,13 @@ ifcLoader.ifcManager.setupThreeMeshBVH(
       ifcModels.push(ifcModel);
       scene.add(ifcModel);});
       return ifcModel;
-  }  
+  }
+  const ifcDir = './';
+  const ifcName = 'oscar-jacobsen-cv-3d.ifc';
+  const ifcPath = ifcDir + ifcName;
+  
   var ifcModel = "";
-  ifcModel = loadIfcFile('./oscar-jacobsen-cv-3d.ifc');
+  ifcModel = loadIfcFile(ifcPath);
 
 
   
@@ -84987,3 +84991,36 @@ function highlight(event, material, model) {
 }
 
 window.onmousemove = (event) => highlight(event, mat, highlightModel);
+
+
+
+
+///////////////////
+// Download .ifc //
+///////////////////
+async function edit(event) {
+  const manager = ifcLoader.ifcManager;
+  //const storeysIDs = await manager.getAllItemsOfType(0, IFCBUILDINGSTOREY, false);
+  //const storeyID = storeysIDs[0];
+  //const storey =  await manager.getItemProperties(0, storeyID);
+  //console.log(storey);
+  //storey.LongName.value = "Nivel 1 - Editado";
+  //manager.ifcAPI.WriteLine(0, storey);
+
+  const data = await manager.ifcAPI.ExportFileAsIFC(0);
+  const blob = new Blob([data]);
+  const file = new File([blob], ifcName);
+
+  const link = document.createElement('a');
+  link.download = ifcPath;
+  link.href = URL.createObjectURL(file);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+window.onkeydown = (event) => {
+  if(event.code === 'KeyP') {
+      edit();
+  }
+};
