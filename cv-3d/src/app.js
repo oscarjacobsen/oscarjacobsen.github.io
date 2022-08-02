@@ -105,18 +105,19 @@ window.addEventListener("resize", () => {
 const ifcLoader = new IFCLoader();
 ifcLoader.ifcManager.setWasmPath("../");
 
-const input = document.getElementById("file-input");
-input.addEventListener(
-  "change",
-  (changed) => {
-    const file = changed.target.files[0];
-    var ifcURL = URL.createObjectURL(file);
-    ifcLoader.load(ifcURL, (ifcModel) => {
-      ifcModels.push(ifcModel);
-      scene.add(ifcModel)});
-  },
-  false
-);
+
+// const input = document.getElementById("file-input");
+//input.addEventListener(
+//  "change",
+//  (changed) => {
+//    const file = changed.target.files[0];
+//    var ifcURL = URL.createObjectURL(file);
+//    ifcLoader.load(ifcURL, (ifcModel) => {
+//      ifcModels.push(ifcModel);
+//      scene.add(ifcModel)});
+//  },
+//  false
+//);
 
 // Sets up optimized picking
 ifcLoader.ifcManager.setupThreeMeshBVH(
@@ -173,7 +174,7 @@ ifcLoader.ifcManager.setupThreeMeshBVH(
   };
   
   var ifcModel = ""
-  ifcModel = loadIfcFile('../cv-3d/oscar-jacobsen-cv-3d.ifc')
+  ifcModel = loadIfcFile('./oscar-jacobsen-cv-3d.ifc');
 
 
   
