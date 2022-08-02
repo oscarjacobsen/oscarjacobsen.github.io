@@ -38,10 +38,10 @@ const size = {
 
 //Creates the camera (point of view of the user)
 const aspect = size.width / size.height;
-const camera = new PerspectiveCamera(75, aspect);
-camera.position.z = 2.4;
-camera.position.y = 1.8;
-camera.position.x = 2;
+const camera = new PerspectiveCamera(20, aspect);
+camera.position.z = 0.3;//2.4;
+camera.position.y = 1.8;//1.8;
+camera.position.x = 0.25;//2;
 
 
 //Creates the lights of the scene
@@ -106,18 +106,18 @@ const ifcLoader = new IFCLoader();
 ifcLoader.ifcManager.setWasmPath("../");
 
 
-// const input = document.getElementById("file-input");
-//input.addEventListener(
-//  "change",
-//  (changed) => {
-//    const file = changed.target.files[0];
-//    var ifcURL = URL.createObjectURL(file);
-//    ifcLoader.load(ifcURL, (ifcModel) => {
-//      ifcModels.push(ifcModel);
-//      scene.add(ifcModel)});
-//  },
-//  false
-//);
+const input = document.getElementById("file-input");
+input.addEventListener(
+  "change",
+  (changed) => {
+    const file = changed.target.files[0];
+    var ifcURL = URL.createObjectURL(file);
+    ifcLoader.load(ifcURL, (ifcModel) => {
+      ifcModels.push(ifcModel);
+      scene.add(ifcModel)});
+  },
+  false
+);
 
 // Sets up optimized picking
 ifcLoader.ifcManager.setupThreeMeshBVH(
