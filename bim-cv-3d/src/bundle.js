@@ -84710,6 +84710,9 @@ function disposeBoundsTree() {
 
 const ifcModels = [];
 
+
+
+
 //Creates the Three.js scene
 const scene = new Scene();
 
@@ -84720,13 +84723,29 @@ const size = {
   height: window.innerHeight,
 };
 
+//Sets up the renderer, fetching the canvas of the HTML
+const threeCanvas = document.getElementById("three-canvas");
+const renderer = new WebGLRenderer({
+  canvas: threeCanvas,
+  alpha: true,
+});
+
+renderer.setSize(size.width, size.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 //Creates the camera (point of view of the user)
 const aspect = size.width / size.height;
-const camera = new PerspectiveCamera(75, aspect);
-camera.position.z = 2.4;
-camera.position.y = 1.8;
-camera.position.x = 2;
+const camera = new PerspectiveCamera(20, aspect);
+camera.position.set(-0.8, 3, 5);
+//camera.position.z = 1.5;//2.4;
+//camera.position.y = 3;//1.8;
+//camera.position.x = 3;//2;
+
+  //Creates the orbit controls (to navigate the scene)
+  const controls = new OrbitControls(camera, threeCanvas);
+  controls.enableDamping = true;
+  controls.target.set(0, 1.9, 2);
+
 
 
 //Creates the lights of the scene
@@ -84743,15 +84762,7 @@ directionalLight.target.position.set(1, 0, 0);
 scene.add(directionalLight);
 scene.add(directionalLight.target);
 
-//Sets up the renderer, fetching the canvas of the HTML
-const threeCanvas = document.getElementById("three-canvas");
-const renderer = new WebGLRenderer({
-  canvas: threeCanvas,
-  alpha: true,
-});
 
-renderer.setSize(size.width, size.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 //Creates grids and axes in the scene
 // const grid = new GridHelper(50, 30);
@@ -84762,19 +84773,9 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 //axes.renderOrder = 1;
 //scene.add(axes);
 
-//Creates the orbit controls (to navigate the scene)
-const controls = new OrbitControls(camera, threeCanvas);
-controls.enableDamping = true;
-controls.target.set(-2, 0, 0);
 
-//Animation loop
-const animate = () => {
-  controls.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
-};
 
-animate();
+
 
 //Adjust the viewport to the size of the browser
 window.addEventListener("resize", () => {
@@ -84831,6 +84832,8 @@ ifcLoader.ifcManager.setupThreeMeshBVH(
   });
   });
   }
+
+
   const objDir = './src/';
   const mtlName = 'oscar-jacobsen-cv-3d.mtl';
   const objName = 'oscar-jacobsen-cv-3d.obj';
@@ -84860,7 +84863,7 @@ ifcLoader.ifcManager.setupThreeMeshBVH(
   const ifcName = 'oscar-jacobsen-cv-3d.ifc';
   const ifcPath = ifcDir + ifcName;
   
-  var ifcModel = "";
+  var ifcModel = null;
   ifcModel = loadIfcFile(ifcPath);
 
 
@@ -85024,3 +85027,14 @@ window.onkeydown = (event) => {
       edit();
   }
 };
+
+const animate = () => {
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+
+  
+
+};
+
+animate();
