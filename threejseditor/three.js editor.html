@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- saved from url=(0027)https://threejs.org/editor/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>three.js editor</title>
+		
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="apple-touch-icon" href="https://threejs.org/editor/images/icon.png">
+		<link rel="manifest" href="https://threejs.org/editor/manifest.json">
+		<link rel="shortcut icon" href="https://threejs.org/files/favicon_white.ico" media="(prefers-color-scheme: dark)">
+		<link rel="shortcut icon" href="https://threejs.org/files/favicon.ico" media="(prefers-color-scheme: light)">
+	</head>
+	<body data-new-gr-c-s-check-loaded="14.1078.0" data-gr-ext-installed="">
+		<script type="text/javascript" async="" src="./three.js editor_files/ga.js.download"></script><script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-86951-15']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
+
+		<link rel="stylesheet" href="./three.js editor_files/main.css">
+
+		<script src="./three.js editor_files/ffmpeg.min.js.download" defer=""></script>
+
+		<script src="./three.js editor_files/draco_encoder.js.download"></script>
+
+		<link rel="stylesheet" href="./three.js editor_files/codemirror.css">
+		<link rel="stylesheet" href="./three.js editor_files/monokai.css">
+		<script src="./three.js editor_files/codemirror.js.download"></script>
+		<script src="./three.js editor_files/javascript.js.download"></script>
+		<script src="./three.js editor_files/glsl.js.download"></script>
+
+		<script src="./three.js editor_files/esprima.js.download"></script>
+		<script src="./three.js editor_files/jsonlint.js.download"></script>
+
+		<link rel="stylesheet" href="./three.js editor_files/dialog.css">
+		<link rel="stylesheet" href="./three.js editor_files/show-hint.css">
+		<link rel="stylesheet" href="./three.js editor_files/tern.css">
+
+		<script src="./three.js editor_files/dialog.js.download"></script>
+		<script src="./three.js editor_files/show-hint.js.download"></script>
+		<script src="./three.js editor_files/tern.js.download"></script>
+		<script src="./three.js editor_files/acorn.js.download"></script>
+		<script src="./three.js editor_files/acorn_loose.js.download"></script>
+		<script src="./three.js editor_files/walk.js.download"></script>
+		<script src="./three.js editor_files/polyfill.js.download"></script>
+		<script src="./three.js editor_files/signal.js.download"></script>
+		<script src="./three.js editor_files/tern.js(1).download"></script>
+		<script src="./three.js editor_files/def.js.download"></script>
+		<script src="./three.js editor_files/comment.js.download"></script>
+		<script src="./three.js editor_files/infer.js.download"></script>
+		<script src="./three.js editor_files/doc_comment.js.download"></script>
+		<script src="./three.js editor_files/threejs.js.download"></script>
+		<script src="./three.js editor_files/signals.min.js.download"></script>
+
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async="" src="./three.js editor_files/es-module-shims.js.download"></script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "../examples/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+
+			import { Editor } from './js/Editor.js';
+			import { Viewport } from './js/Viewport.js';
+			import { Toolbar } from './js/Toolbar.js';
+			import { Script } from './js/Script.js';
+			import { Player } from './js/Player.js';
+			import { Sidebar } from './js/Sidebar.js';
+			import { Menubar } from './js/Menubar.js';
+			import { Resizer } from './js/Resizer.js';
+			import { VRButton } from 'three/addons/webxr/VRButton.js';
+
+			window.URL = window.URL || window.webkitURL;
+			window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+
+			Number.prototype.format = function () {
+
+				return this.toString().replace( /(\d)(?=(\d{3})+(?!\d))/g, '$1,' );
+
+			};
+
+			//
+
+			const editor = new Editor();
+
+			window.editor = editor; // Expose editor to Console
+			window.THREE = THREE; // Expose THREE to APP Scripts and Console
+			window.VRButton = VRButton; // Expose VRButton to APP Scripts
+
+			const viewport = new Viewport( editor );
+			document.body.appendChild( viewport.dom );
+
+			const toolbar = new Toolbar( editor );
+			document.body.appendChild( toolbar.dom );
+
+			const script = new Script( editor );
+			document.body.appendChild( script.dom );
+
+			const player = new Player( editor );
+			document.body.appendChild( player.dom );
+
+			const sidebar = new Sidebar( editor );
+			document.body.appendChild( sidebar.dom );
+
+			const menubar = new Menubar( editor );
+			document.body.appendChild( menubar.dom );
+
+			const resizer = new Resizer( editor );
+			document.body.appendChild( resizer.dom );
+
+			//
+
+			editor.storage.init( function () {
+
+				editor.storage.get( function ( state ) {
+
+					if ( isLoadingFromHash ) return;
+
+					if ( state !== undefined ) {
+
+						editor.fromJSON( state );
+
+					}
+
+					const selected = editor.config.getKey( 'selected' );
+
+					if ( selected !== undefined ) {
+
+						editor.selectByUuid( selected );
+
+					}
+
+				} );
+
+				//
+
+				let timeout;
+
+				function saveState() {
+
+					if ( editor.config.getKey( 'autosave' ) === false ) {
+
+						return;
+
+					}
+
+					clearTimeout( timeout );
+
+					timeout = setTimeout( function () {
+
+						editor.signals.savingStarted.dispatch();
+
+						timeout = setTimeout( function () {
+
+							editor.storage.set( editor.toJSON() );
+
+							editor.signals.savingFinished.dispatch();
+
+						}, 100 );
+
+					}, 1000 );
+
+				}
+
+				const signals = editor.signals;
+
+				signals.geometryChanged.add( saveState );
+				signals.objectAdded.add( saveState );
+				signals.objectChanged.add( saveState );
+				signals.objectRemoved.add( saveState );
+				signals.materialChanged.add( saveState );
+				signals.sceneBackgroundChanged.add( saveState );
+				signals.sceneEnvironmentChanged.add( saveState );
+				signals.sceneFogChanged.add( saveState );
+				signals.sceneGraphChanged.add( saveState );
+				signals.scriptChanged.add( saveState );
+				signals.historyChanged.add( saveState );
+
+			} );
+
+			//
+
+			document.addEventListener( 'dragover', function ( event ) {
+
+				event.preventDefault();
+				event.dataTransfer.dropEffect = 'copy';
+
+			} );
+
+			document.addEventListener( 'drop', function ( event ) {
+
+				event.preventDefault();
+
+				if ( event.dataTransfer.types[ 0 ] === 'text/plain' ) return; // Outliner drop
+
+				if ( event.dataTransfer.items ) {
+
+					// DataTransferItemList supports folders
+
+					editor.loader.loadItemList( event.dataTransfer.items );
+
+				} else {
+
+					editor.loader.loadFiles( event.dataTransfer.files );
+
+				}
+
+			} );
+
+			function onWindowResize() {
+
+				editor.signals.windowResize.dispatch();
+
+			}
+
+			window.addEventListener( 'resize', onWindowResize );
+
+			onWindowResize();
+
+			//
+
+			let isLoadingFromHash = false;
+			const hash = window.location.hash;
+
+			if ( hash.slice( 1, 6 ) === 'file=' ) {
+
+				const file = hash.slice( 6 );
+
+				if ( confirm( 'Any unsaved data will be lost. Are you sure?' ) ) {
+
+					const loader = new THREE.FileLoader();
+					loader.crossOrigin = '';
+					loader.load( file, function ( text ) {
+
+						editor.clear();
+						editor.fromJSON( JSON.parse( text ) );
+
+					} );
+
+					isLoadingFromHash = true;
+
+				}
+
+			}
+
+			// ServiceWorker
+
+			if ( 'serviceWorker' in navigator ) {
+
+				try {
+
+					navigator.serviceWorker.register( 'sw.js' );
+
+				} catch ( error ) {
+
+				}
+
+			}
+
+		</script>
+	
+
+<div class="Panel" id="viewport" style="position: absolute; touch-action: none;"><select class="Select" autocomplete="off" style="padding: 2px; position: absolute; right: 10px; top: 10px;"><option value="12c1d7dd-621a-4cf7-b72b-f8969ccabc2f">Camera</option></select><div class="Panel" id="info" style="position: absolute; left: 10px; bottom: 10px; font-size: 12px; color: rgb(255, 255, 255);"><span class="Text" style="cursor: default; display: inline-block; text-transform: lowercase;">Objects</span><span class="Text" style="cursor: default; display: inline-block; margin-left: 6px;">2</span><br class="Break"><span class="Text" style="cursor: default; display: inline-block; text-transform: lowercase;">Vertices</span><span class="Text" style="cursor: default; display: inline-block; margin-left: 6px;">24</span><br class="Break"><span class="Text" style="cursor: default; display: inline-block; text-transform: lowercase;">Triangles</span><span class="Text" style="cursor: default; display: inline-block; margin-left: 6px;">12</span><br class="Break"><span class="Text" style="cursor: default; display: inline-block; text-transform: lowercase;">Frametime</span><span class="Text" style="cursor: default; display: inline-block; margin-left: 6px;">65.10 ms</span><br class="Break"></div><div class="Panel" id="viewHelper" style="position: absolute; right: 0px; bottom: 0px; height: 128px; width: 128px;"></div><canvas data-engine="three.js r144" width="660" height="995" style="display: block; width: 660px; height: 995px;"></canvas></div><div class="Panel" id="toolbar"><button class="Button selected"><img title="Translate" src="./three.js editor_files/translate.svg"></button><button class="Button"><img title="Rotate" src="./three.js editor_files/rotate.svg"></button><button class="Button"><img title="Scale" src="./three.js editor_files/scale.svg"></button><input class="Checkbox" type="checkbox" title="Local"></div><div class="Panel" id="script" style="position: absolute; background-color: rgb(39, 40, 34); display: none;"><div class="Panel" style="padding: 10px;"><span class="Text" style="cursor: default; display: inline-block; color: rgb(255, 255, 255);"></span><svg width="32" height="32" style="position: absolute; top: 3px; right: 1px; cursor: pointer;"><path d="M 12,12 L 22,22 M 22,12 12,22" stroke="#fff"></path></svg></div><div class="CodeMirror cm-s-monokai" translate="no"><div style="overflow: hidden; position: relative; width: 3px; height: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; min-height: 1em; outline: none;"></textarea></div><div class="CodeMirror-vscrollbar" tabindex="-1" cm-not-content="true"><div style="min-width: 1px;"></div></div><div class="CodeMirror-hscrollbar" tabindex="-1" cm-not-content="true"><div style="height: 100%; min-height: 1px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; min-width: 3px;"><div style="position: relative;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"><pre class="CodeMirror-line" role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="" style="display: inline-block; width: 1px; margin-right: -1px;">&nbsp;</span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"></div><div class="CodeMirror-code" role="presentation"></div></div></div></div></div><div style="position: absolute; height: 50px; width: 1px;"></div><div class="CodeMirror-gutters" style="left: 0px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div></div><div class="Panel" id="player" style="position: absolute; display: none;"><div><canvas data-engine="three.js r144" width="0" height="0" style="display: block; width: 0px; height: 0px;"></canvas></div></div><div class="TabbedPanel" id="sidebar"><div class="Tabs"><span class="Tab selected" id="scene" style="cursor: default; display: inline-block;">Scene</span><span class="Tab" id="project" style="cursor: default; display: inline-block;">Project</span><span class="Tab" id="settings" style="cursor: default; display: inline-block;">Settings</span></div><div class="Panels"><div id="scene" style=""><span><div class="Panel" style="border-top: 0px; padding-top: 20px;"><div class="Outliner" tabindex="0" id="outliner"><div draggable="false" class="option"><span class="type Camera"></span> Camera</div><div draggable="false" class="option"><span class="type Scene"></span> Scene</div><div draggable="true" class="option" style="padding-left: 0px;"><span class="opener"></span><span class="type Object3D"></span> 20220301_132216.obj</div><div draggable="true" class="option" style="padding-left: 0px;"><span class="opener"></span><span class="type Mesh"></span> Box <span class="type Geometry"></span>  <span class="type Material"></span> </div></div><br class="Break"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Background</span><select class="Select" autocomplete="off" style="padding: 2px; width: 110px;"><option value="None"></option><option value="Color">Color</option><option value="Texture">Texture</option><option value="Equirectangular">Equirect</option></select><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent; margin-left: 8px;"><span style="margin-left: 8px; display: none;"><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><span style="margin-left: 8px; display: none;"><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Environment</span><select class="Select" autocomplete="off" style="padding: 2px; width: 150px;"><option value="None"></option><option value="Equirectangular">Equirect</option><option value="ModelViewer">ModelViewer</option></select><span style="margin-left: 8px; display: none;"><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Fog</span><select class="Select" autocomplete="off" style="padding: 2px; width: 150px;"><option value="None"></option><option value="Fog">Linear</option><option value="FogExp2">Exponential</option></select></div><div class="Row" style="display: none; margin-left: 90px;"><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 40px; display: none;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 40px; display: none;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 40px; display: none;"></div></div><div class="TabbedPanel" id="properties"><div class="Tabs"><span class="Tab selected" id="object" style="cursor: default; display: inline-block;">Object</span><span class="Tab" id="geometry" style="cursor: default; display: inline-block;">Geometry</span><span class="Tab" id="material" style="cursor: default; display: inline-block;">Material</span></div><div class="Panels"><div id="object" style=""><div class="Panel" style="border-top: 0px; padding-top: 20px; display: none;"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Type</span><span class="Text" style="cursor: default; display: inline-block;"></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">UUID</span><input class="Input" autocomplete="off" disabled="" style="padding: 2px; border: 1px solid transparent; width: 102px; font-size: 12px;"><button class="Button" style="margin-left: 7px;">New</button></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Name</span><input class="Input" autocomplete="off" style="padding: 2px; border: 1px solid transparent; width: 150px; font-size: 12px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Position</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Rotation</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Scale</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Fov</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Left</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Right</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Top</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Bottom</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Near</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Far</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Intensity</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Color</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Ground Color</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Distance</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Angle</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Penumbra</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Decay</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shadow</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;">cast</span></span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;">receive</span></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shadow Bias</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shadow Normal Bias</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shadow Radius</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Visible</span><input class="Checkbox" type="checkbox"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Frustum Cull</span><input class="Checkbox" type="checkbox"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Render Order</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 50px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">User data</span><textarea class="TextArea" spellcheck="false" autocomplete="off" style="padding: 2px; width: 150px; height: 40px; font-size: 12px;"></textarea></div></div></div><div id="geometry" style="display: none;"><div class="Panel" style="border-top: 0px; display: none; padding-top: 20px;"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Type</span><span class="Text" style="cursor: default; display: inline-block;"></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">UUID</span><input class="Input" autocomplete="off" disabled="" style="padding: 2px; border: 1px solid transparent; width: 102px; font-size: 12px;"><button class="Button" style="margin-left: 7px;">New</button></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Name</span><input class="Input" autocomplete="off" style="padding: 2px; border: 1px solid transparent; width: 150px; font-size: 12px;"></div><span></span><div class="Row"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Bounds</span><span class="Text" style="cursor: default; display: inline-block; font-size: 12px;"></span></div><div class="Row" style="padding-left: 90px;"><button class="Button">Show Vertex Normals</button></div></div></div><div id="material" style="display: none;"><div class="Panel" style="border-top: 0px; display: none; padding-top: 20px;"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Slot</span><select class="Select" autocomplete="off" style="padding: 2px; width: 170px; font-size: 12px;"><option value="0"></option></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Type</span><select class="Select" autocomplete="off" style="padding: 2px; width: 150px; font-size: 12px;"></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">UUID</span><input class="Input" autocomplete="off" disabled="" style="padding: 2px; border: 1px solid transparent; width: 102px; font-size: 12px;"><button class="Button" style="margin-left: 7px;">New</button></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Name</span><input class="Input" autocomplete="off" style="padding: 2px; border: 1px solid transparent; width: 150px; font-size: 12px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Program</span><button class="Button" style="margin-right: 4px;">Info</button><button class="Button" style="margin-right: 4px;">Vert</button><button class="Button" style="margin-right: 4px;">Frag</button></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Color</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Specular</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shininess</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Emissive</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Reflectivity</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Roughness</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Metalness</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Clearcoat</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Clearcoat Roughness</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Iridescence</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Thin-Film IOR</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Thin-Film Thickness</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Transmission</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Attenuation Distance</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Attenuation Color</span><input class="Color" autocomplete="off" type="color" style="width: 32px; height: 16px; border: 0px; padding: 2px; background-color: transparent;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Thickness</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Vertex Colors</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Depth Packing</span><select class="Select" autocomplete="off" style="padding: 2px;"><option value="3200">Basic</option><option value="3201">RGBA</option></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Specular Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Emissive Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Matcap</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Alpha Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Bump Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Normal Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Clearcoat Normal Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Displace Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Rough. Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Metal. Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Irid. Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Thin-Film Thickness Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><div style="margin-left: 3px;"><div class="Row" style="margin-bottom: 0px; min-height: 0px;"><span class="Text" style="cursor: default; display: inline-block; width: 35px;">min:</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 40px;"></div><div class="Row" style="margin-bottom: 6px; min-height: 0px;"><span class="Text" style="cursor: default; display: inline-block; width: 35px;">max:</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 40px;"></div></div></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Env Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Light Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">AO Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 30px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Gradient Map</span><input class="Checkbox" type="checkbox" style="margin-right: 8px;"><span><canvas width="32" height="16" style="cursor: pointer; margin-right: 5px; border: 1px solid rgb(136, 136, 136);"></canvas></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Side</span><select class="Select" autocomplete="off" style="padding: 2px;"><option value="0">Front</option><option value="1">Back</option><option value="2">Double</option></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Size</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Size Attenuation</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Flat Shading</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Blending</span><select class="Select" autocomplete="off" style="padding: 2px;"><option value="0">No</option><option value="1">Normal</option><option value="2">Additive</option><option value="3">Subtractive</option><option value="4">Multiply</option><option value="5">Custom</option></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Opacity</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Transparent</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Alpha Test</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Depth Test</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Depth Write</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Wireframe</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">User data</span><textarea class="TextArea" spellcheck="false" autocomplete="off" style="padding: 2px; width: 150px; height: 40px; font-size: 12px;"></textarea></div></div></div></div></div><div class="Panel" style="display: none;"><span class="Text" style="cursor: default; display: inline-block; text-transform: uppercase;">Animations</span><br class="Break"><br class="Break"><div></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Time Scale</span><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; width: 60px;"></div></div><div class="Panel" style="display: none;"><span class="Text" style="cursor: default; display: inline-block; text-transform: uppercase;">Script</span><br class="Break"><br class="Break"><div class="Row"></div><button class="Button">New</button></div></span></div><div id="project" style="display: none;"><span><div class="Panel" style="border-top: 0px; padding-top: 20px;"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Title</span><input class="Input" autocomplete="off" style="padding: 2px; border: 1px solid transparent; left: 100px; width: 150px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Editable</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">VR</span><input class="Checkbox" type="checkbox" style="left: 100px;"></div></div><div class="Panel"><div class="Row"><span class="Text" style="cursor: default; display: inline-block;">RENDERER</span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Antialias</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;"></span></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Physical lights</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;"></span></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Shadows</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;"></span></span><select class="Select" autocomplete="off" style="padding: 2px; width: 125px;"><option value="0">Basic</option><option value="1">PCF</option><option value="2">PCF Soft</option></select></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Tone mapping</span><select class="Select" autocomplete="off" style="padding: 2px; width: 120px;"><option value="0">No</option><option value="1">Linear</option><option value="2">Reinhard</option><option value="3">Cineon</option><option value="4">ACESFilmic</option></select><input class="Number" autocomplete="off" style="cursor: ns-resize; background-color: transparent; display: none; width: 30px; margin-left: 10px;"></div></div></span></div><div id="settings" style="display: none;"><span><div class="Panel" style="border-top: 0px; padding-top: 20px;"><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Language</span><select class="Select" autocomplete="off" style="padding: 2px; width: 150px;"><option value="en">English</option><option value="fr">Français</option><option value="zh">中文</option></select></div></div><div class="Panel"><div class="Row"><span class="Text" style="cursor: default; display: inline-block;">VIEWPORT</span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Grid</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;"></span></span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; width: 90px;">Helpers</span><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;"></span></span></div></div><div class="Panel"><div class="Row"><span class="Text" style="cursor: default; display: inline-block;">SHORTCUTS</span></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; text-transform: capitalize; width: 90px;">Translate</span><input class="Input" autocomplete="off" maxlength="1" style="padding: 2px; border: 1px solid transparent; width: 15px; font-size: 12px; text-align: center; text-transform: lowercase;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; text-transform: capitalize; width: 90px;">Rotate</span><input class="Input" autocomplete="off" maxlength="1" style="padding: 2px; border: 1px solid transparent; width: 15px; font-size: 12px; text-align: center; text-transform: lowercase;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; text-transform: capitalize; width: 90px;">Scale</span><input class="Input" autocomplete="off" maxlength="1" style="padding: 2px; border: 1px solid transparent; width: 15px; font-size: 12px; text-align: center; text-transform: lowercase;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; text-transform: capitalize; width: 90px;">Undo</span><input class="Input" autocomplete="off" maxlength="1" style="padding: 2px; border: 1px solid transparent; width: 15px; font-size: 12px; text-align: center; text-transform: lowercase;"></div><div class="Row"><span class="Text" style="cursor: default; display: inline-block; text-transform: capitalize; width: 90px;">Focus</span><input class="Input" autocomplete="off" maxlength="1" style="padding: 2px; border: 1px solid transparent; width: 15px; font-size: 12px; text-align: center; text-transform: lowercase;"></div></div><div class="Panel"><span class="Text" style="cursor: default; display: inline-block;">HISTORY</span><span style="margin-right: 4px; position: absolute; right: 8px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px;">persistent</span></span><br class="Break"><br class="Break"><div class="Outliner" tabindex="0"></div></div></span></div></div></div><form style="display: none;"><input multiple="" type="file"></form><div class="Panel" id="menubar"><div class="menu"><div class="title">File</div><div class="options"><div class="option">New</div><hr class="HorizontalRule"><div class="option">Import</div><hr class="HorizontalRule"><div class="option">Export Geometry</div><div class="option">Export Object</div><div class="option">Export Scene</div><hr class="HorizontalRule"><div class="option">Export DAE</div><div class="option">Export DRC</div><div class="option">Export GLB</div><div class="option">Export GLTF</div><div class="option">Export OBJ</div><div class="option">Export PLY</div><div class="option">Export PLY (Binary)</div><div class="option">Export STL</div><div class="option">Export STL (Binary)</div><div class="option">Export USDZ</div><hr class="HorizontalRule"><div class="option">Publish</div></div></div><div class="menu"><div class="title">Edit</div><div class="options"><div class="inactive">Undo (Ctrl+Z)</div><div class="inactive">Redo (Ctrl+Shift+Z)</div><div class="option">Clear History</div><hr class="HorizontalRule"><div class="option">Center</div><div class="option">Clone</div><div class="option">Delete (Del)</div><hr class="HorizontalRule"><div class="option">Fix Color Maps</div></div></div><div class="menu"><div class="title">Add</div><div class="options"><div class="option">Group</div><hr class="HorizontalRule"><div class="option">Box</div><div class="option">Capsule</div><div class="option">Circle</div><div class="option">Cylinder</div><div class="option">Dodecahedron</div><div class="option">Icosahedron</div><div class="option">Lathe</div><div class="option">Octahedron</div><div class="option">Plane</div><div class="option">Ring</div><div class="option">Sphere</div><div class="option">Sprite</div><div class="option">Tetrahedron</div><div class="option">Torus</div><div class="option">TorusKnot</div><div class="option">Tube</div><hr class="HorizontalRule"><div class="option">AmbientLight</div><div class="option">DirectionalLight</div><div class="option">HemisphereLight</div><div class="option">PointLight</div><div class="option">SpotLight</div><hr class="HorizontalRule"><div class="option">OrthographicCamera</div><div class="option">PerspectiveCamera</div></div></div><div class="menu"><div class="title">Play</div></div><div class="menu"><div class="title">Examples</div><div class="options"><div class="option">Arkanoid</div><div class="option">Camera</div><div class="option">Particles</div><div class="option">Pong</div><div class="option">Shaders</div></div></div><div class="menu"><div class="title">View</div><div class="options"><div class="option">Fullscreen</div></div></div><div class="menu"><div class="title">Help</div><div class="options"><div class="option">Source Code</div><div class="option">About</div><div class="option">Manual</div></div></div><div class="menu right"><span style="margin-right: 4px;"><input class="Checkbox" type="checkbox"><span class="Text" style="cursor: default; display: inline-block; margin-left: 3px; color: rgb(136, 136, 136); text-decoration: none;">autosave</span></span><span class="title" style="cursor: default; display: inline-block; opacity: 0.5;">r144</span></div></div><div id="resizer"></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
