@@ -12,10 +12,10 @@ import {
   WebGLRenderer,
   MeshBasicMaterial
 } from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import {MTLLoader} from "three/examples/jsm/loaders/MTLLoader";
-import {IFCLoader} from "web-ifc-three/IFCLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
+import { IFCLoader } from "web-ifc-three/IFCLoader";
 import {
   acceleratedRaycast,
   computeBoundsTree,
@@ -58,10 +58,10 @@ camera.position.set(-0.8, 3, 5);
 //camera.position.y = 3;//1.8;
 //camera.position.x = 3;//2;
 
-  //Creates the orbit controls (to navigate the scene)
-  const controls = new OrbitControls(camera, threeCanvas);
-  controls.enableDamping = true;
-  controls.target.set(0, 1.9, 2);
+//Creates the orbit controls (to navigate the scene)
+const controls = new OrbitControls(camera, threeCanvas);
+controls.enableDamping = true;
+controls.target.set(0, 1.9, 2);
 
 
 
@@ -118,7 +118,8 @@ input.addEventListener(
     ifcLoader.load(ifcURL, (ifcModel) => {
       ifcModelMesh = ifcModel;
       ifcModels.push(ifcModel);
-      scene.add(ifcModel)});
+      scene.add(ifcModel)
+    });
   },
   false
 );
@@ -130,66 +131,67 @@ ifcLoader.ifcManager.setupThreeMeshBVH(
   acceleratedRaycast);
 
 
-  /////////////////
-  // Loading OBJ //
-  /////////////////
+/////////////////
+// Loading OBJ //
+/////////////////
 
-  function loadMtlObjFile(dirPath, mtlName, objName){
+function loadMtlObjFile(dirPath, mtlName, objName) {
 
-    var mtlLoader = new MTLLoader();
+  var mtlLoader = new MTLLoader();
 
-    mtlLoader.setPath(dirPath);
-  mtlLoader.load(mtlName, function(materials){
+  mtlLoader.setPath(dirPath);
+  mtlLoader.load(mtlName, function (materials) {
     materials.preload();
     var objLoader = new OBJLoader;
     objLoader.setMaterials(materials);
-  objLoader.setPath(dirPath)
-  objLoader.load(objName, function(object){
-    scene.add(object);
-    objModelMesh = object;
-    return object
-  })
+    objLoader.setPath(dirPath)
+    objLoader.load(objName, function (object) {
+      scene.add(object);
+      objModelMesh = object;
+      return object
+    })
   });
-  };
+};
 
 
 
-  const objDir = './src/'
-  const mtlName = 'oscar-jacobsen-cv-3d.mtl'
-  const objName = 'oscar-jacobsen-cv-3d.obj'
+const objDir = './src/'
+const mtlName = 'oscar-jacobsen-cv-3d.mtl'
+const objName = 'oscar-jacobsen-cv-3d.obj'
 
-  const objObject = loadMtlObjFile(objDir, mtlName, objName)
-
-  
-  ///////////////////
-  // Load IFC file //
-  //////////////////
-
-  const ifcMat = new MeshLambertMaterial({
-    transparent: true,
-    opacity: 0.,
-    color: 0xff88ff,
-    depthTest: false
-  })
-
-  function loadIfcFile(ifcURL){
-    ifcLoader.load(ifcURL, (ifcModel) => {
-      ifcModelMesh = ifcModel;
-      ifcModel.material = ifcMat;
-      ifcModels.push(ifcModel);
-      scene.add(ifcModel)});
-      return ifcModel;
-  };
-
-  const ifcDir = './';
-  const ifcName = 'oscar-jacobsen-cv-3d.ifc';
-  const ifcPath = ifcDir + ifcName;
-  
-  var ifcModel = null;
-  ifcModel = loadIfcFile(ifcPath);
+const objObject = loadMtlObjFile(objDir, mtlName, objName)
 
 
-  
+///////////////////
+// Load IFC file //
+//////////////////
+
+const ifcMat = new MeshLambertMaterial({
+  transparent: true,
+  opacity: 0.,
+  color: 0xff88ff,
+  depthTest: false
+})
+
+function loadIfcFile(ifcURL) {
+  ifcLoader.load(ifcURL, (ifcModel) => {
+    ifcModelMesh = ifcModel;
+    ifcModel.material = ifcMat;
+    ifcModels.push(ifcModel);
+    scene.add(ifcModel)
+  });
+  return ifcModel;
+};
+
+const ifcDir = './';
+const ifcName = 'oscar-jacobsen-cv-3d.ifc';
+const ifcPath = ifcDir + ifcName;
+
+var ifcModel = null;
+ifcModel = loadIfcFile(ifcPath);
+
+
+
 
 
 const raycaster = new Raycaster();
@@ -224,52 +226,53 @@ async function pick(event) {
   const found = cast(event)[0];
 
   if (found) {
-      const index = found.faceIndex;
-      const geometry = found.object.geometry;
-      const ifc = ifcLoader.ifcManager;
-      const id = ifc.getExpressId(geometry, index);
-      const modelID = found.object.modelID;
+    const index = found.faceIndex;
+    const geometry = found.object.geometry;
+    const ifc = ifcLoader.ifcManager;
+    const id = ifc.getExpressId(geometry, index);
+    const modelID = found.object.modelID;
 
-  const psets  = {}
+    const psets = {}
 
-  output.innerHTML = JSON.stringify({})
+    output.innerHTML = JSON.stringify({})
 
-  var ifc_psets = await ifc.getPropertySets(modelID, id);
+    var ifc_psets = await ifc.getPropertySets(modelID, id);
 
-  ifc_psets.forEach(async function (ifc_pset, idx, arr){
+    ifc_psets.forEach(async function (ifc_pset, idx, arr) {
 
-    var ifc_pset_name = ifc_pset["Name"]["value"];
+      var ifc_pset_name = ifc_pset["Name"]["value"];
 
-    const pset = {}
+      const pset = {}
 
-    ifc_pset["HasProperties"].forEach(async function(ifc_prop, idx2, arr2){
+      ifc_pset["HasProperties"].forEach(async function (ifc_prop, idx2, arr2) {
 
-      var prop_id = ifc_prop["value"];
-      var ifc_property = await ifc.getItemProperties(modelID, prop_id);
-      var ifc_property_name = ifc_property["Name"]["value"];
-      var ifc_property_value = ifc_property["NominalValue"]["value"]
-      
-      pset[ifc_property_name] = ifc_property_value
+        var prop_id = ifc_prop["value"];
+        var ifc_property = await ifc.getItemProperties(modelID, prop_id);
+        var ifc_property_name = ifc_property["Name"]["value"];
+        var ifc_property_value = ifc_property["NominalValue"]["value"]
 
-      if (idx2 === arr2.length - 1){
+        pset[ifc_property_name] = ifc_property_value
 
-        psets[ifc_pset_name]
+        if (idx2 === arr2.length - 1) {
 
-        if (idx === arr.length - 1){
-          output.innerHTML = await JSON.stringify(await psets, null, 2);
+          psets[ifc_pset_name]
+
+          if (idx === arr.length - 1) {
+            output.innerHTML = await JSON.stringify(await psets, null, 2);
+          }
+
         }
+      })
 
-      }
+      psets[ifc_pset_name] = pset
+
+      output.innerHTML = await JSON.stringify(await psets, null, 2);
+
+
+
+
     })
-
-    psets[ifc_pset_name] = pset
-
-    output.innerHTML = await JSON.stringify(await psets, null, 2);
-
-  
-
-      
-  })}
+  }
 }
 
 window.onclick = pick;
@@ -287,31 +290,31 @@ const mat = new MeshLambertMaterial({
 
 const ifc = ifcLoader.ifcManager;
 // Reference to the previous selection
-let highlightModel = { id: - 1};
+let highlightModel = { id: - 1 };
 
 function highlight(event, material, model) {
   const found = cast(event)[0];
   if (found) {
 
-      // Gets model ID
-      model.id = found.object.modelID;
+    // Gets model ID
+    model.id = found.object.modelID;
 
-      // Gets Express ID
-      const index = found.faceIndex;
-      const geometry = found.object.geometry;
-      const id = ifc.getExpressId(geometry, index);
+    // Gets Express ID
+    const index = found.faceIndex;
+    const geometry = found.object.geometry;
+    const id = ifc.getExpressId(geometry, index);
 
-      // Creates subset
-      ifcLoader.ifcManager.createSubset({
-          modelID: model.id,
-          ids: [id],
-          material: material,
-          scene: scene,
-          removePrevious: true
-      })
+    // Creates subset
+    ifcLoader.ifcManager.createSubset({
+      modelID: model.id,
+      ids: [id],
+      material: material,
+      scene: scene,
+      removePrevious: true
+    })
   } else {
-      // Remove previous highlight
-      ifc.removeSubset(model.id, material);
+    // Remove previous highlight
+    ifc.removeSubset(model.id, material);
   }
 }
 
@@ -344,11 +347,11 @@ async function edit(event) {
   link.remove();
 }
 
-window.onkeydown = (event) => {
-  if(event.code === 'KeyP') {
-      edit();
-  }
-};
+//window.onkeydown = (event) => {
+// if(event.code === 'KeyP') {
+//      edit();
+//  }
+//};
 
 
 
@@ -362,14 +365,14 @@ const animate = () => {
   requestAnimationFrame(animate);
 
 
-  if (rotateIfcFlag && ifcModelMesh !== null){
+  if (rotateIfcFlag && ifcModelMesh !== null) {
     ifcModelMesh.rotation.y += rotationSize;
     //ifcModelMesh.rotation.z -= rotationSize;
     objModelMesh.rotation.y += rotationSize;
     //objModelMesh.rotation.z -= rotationSize;
   }
 
-  
+
 
 };
 
