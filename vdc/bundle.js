@@ -1,6 +1,6 @@
-//document.querySelector('title').textContent = newHeadTitle
+const newHeadTitle = "Norconsult VRC";
 
-//document.head.title = newHeadTitle;
+document.querySelector('title').textContent = newHeadTitle;
 
 const h1Element = document.createElement("h1");
 
