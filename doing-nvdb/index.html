@@ -9,7 +9,6 @@
 <body>
     <div class="status"></div>
     <br>
-    <br>
     <div class="vegobjekttyper"></div>
     <script>
 
@@ -20,15 +19,22 @@
             text += "Versjon: " + nvdb_status_json.datakatalog.versjon + "<br>"
             text += "Dato: " + nvdb_status_json.datakatalog.dato + "<br>"
             text += "Sist oppdatert: " + nvdb_status_json.datagrunnlag.sist_oppdatert + "<br>"
-
-            $(".status").html(text + JSON.stringify(data));
+            $(".status").html(text);
         });
 
 
         // Getting NVDB LES API Vegobjekttyper 
         $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
             var nvdb_vegobjekttyper_json = data
-            $(".status").html(JSON.stringify(nvdb_vegobjekttyper_json[0].egenskaper));
+            var text = ""
+            for (let i = 0; i < nvdb_vegobjekttyper_json.length; i++) {
+                var egenskapstyper = nvdb_vegobjekttyper_json[i].egenskapstyper
+                if (!nvdb_vegobjekttyper_json[i].sosinvdbnavn.includes("Utgår_")) {
+                    text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + ", " + nvdb_vegobjekttyper_json[i].stedfesting + "<br>"
+                }
+                //text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + "<br>"
+            }
+            $(".vegobjekttyper").html(text + "<br>" + JSON.stringify(data));
         });
     </script>
 </body>
