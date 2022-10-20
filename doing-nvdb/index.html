@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NVDB i BIM</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+    <div class="status"></div>
+    <br>
+    <br>
+    <div class="vegobjekttyper"></div>
+    <script>
+
+        // Getting NVDB LES API Status
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/status', function (data) {
+            var nvdb_status_json = data
+            var text = ""
+            text += "Versjon: " + nvdb_status_json.datakatalog.versjon + "<br>"
+            text += "Dato: " + nvdb_status_json.datakatalog.dato + "<br>"
+            text += "Sist oppdatert: " + nvdb_status_json.datagrunnlag.sist_oppdatert + "<br>"
+
+            $(".status").html(text + JSON.stringify(data));
+        });
+
+
+        // Getting NVDB LES API Vegobjekttyper 
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
+            var nvdb_vegobjekttyper_json = data
+            $(".status").html(JSON.stringify(nvdb_vegobjekttyper_json[0].egenskaper));
+        });
+    </script>
+</body>
+
+</html>
