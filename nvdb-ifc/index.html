@@ -8,6 +8,7 @@
 
 <body>
     <h1>Nasjonal Vegdatabank i BIM (som .ifc)</h1>
+    <p>Proof-Of-Concept App: For å håndtere NVDB-struktur i BIM .ifc-struktur.<br>API=ok, TODO: ca resten:)</p>
     <div class="status"></div>
     <br>
     <div class="vegobjekttyper"></div>
@@ -35,7 +36,7 @@
                 }
                 //text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + "<br>"
             }
-            $(".vegobjekttyper").html(text + "<br>" + JSON.stringify(data));
+            $(".vegobjekttyper").html(text + "<br>"); //+ JSON.stringify(data));
         });
     </script>
 </body>
