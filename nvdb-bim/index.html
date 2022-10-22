@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NVDB &harr; IFC</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <style>
+        #buttondiv {
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Nasjonal Vegdatabank &harr; BIM (.ifc)</h1>
+    <p>Proof-Of-Concept App: For å håndtere NVDB-struktur i BIM .ifc-struktur.<br>API=ok, TODO: ca resten:)</p>
+    <!--Add to button to save the data.-->
+    <div id="buttondiv">
+        <p><b>Last ned NVDB Property Set Definitions i:</b></p>
+        <input type="button" id="bt" value="Human .xlsx" onclick="saveFile()" />
+        <input type="button" id="bt" value="Revit .xml" onclick="saveFile()" />
+        <input type="button" id="bt" value="Blender .ifc" onclick="saveFile()" />
+        <input type="button" id="bt" value="Peanuts .txt" onclick="saveFile()" />
+    </div>
+    <br>
+    <div class="status"></div>
+    <br>
+    <div class="vegobjekttyper"></div>
+    <script>
+
+        // Getting NVDB LES API Status
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/status', function (data) {
+            var nvdb_status_json = data
+            var text = ""
+            text += "Versjon: " + nvdb_status_json.datakatalog.versjon + "<br>"
+            text += "Dato: " + nvdb_status_json.datakatalog.dato + "<br>"
+            text += "Sist oppdatert: " + nvdb_status_json.datagrunnlag.sist_oppdatert + "<br>"
+            $(".status").html(text);
+        });
+
+
+        // Getting NVDB LES API Vegobjekttyper 
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
+            var nvdb_vegobjekttyper_json = data
+            var text = ""
+            for (let i = 0; i < nvdb_vegobjekttyper_json.length; i++) {
+                var egenskapstyper = nvdb_vegobjekttyper_json[i].egenskapstyper
+                if (!nvdb_vegobjekttyper_json[i].sosinvdbnavn.includes("Utgår_")) {
+                    text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + ", " + nvdb_vegobjekttyper_json[i].stedfesting + "<br>"
+                }
+                //text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + "<br>"
+            }
+            $(".vegobjekttyper").html(text + "<br>"); //+ JSON.stringify(data));
+        });
+
+        let saveFile = () => {
+
+            // Get the data from each element on the form.
+            const name = document.getElementById('txtName');
+            const age = document.getElementById('txtAge');
+            const email = document.getElementById('txtEmail');
+            const country = document.getElementById('selCountry');
+            const msg = document.getElementById('msg');
+
+            // This variable stores all the data.
+            let data =
+                '\r Name: ' + name.value + ' \r\n ' +
+                'Age: ' + age.value + ' \r\n ' +
+                'Email: ' + email.value + ' \r\n ' +
+                'Country: ' + country.value + ' \r\n ' +
+                'Message: ' + msg.value;
+
+            // Convert the text to BLOB.
+            const textToBLOB = new Blob([data], { type: 'text/plain' });
+            const sFileName = 'formData.txt';	   // The file to save the data.
+
+            let newLink = document.createElement("a");
+            newLink.download = sFileName;
+
+            if (window.webkitURL != null) {
+                newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+            }
+            else {
+                newLink.href = window.URL.createObjectURL(textToBLOB);
+                newLink.style.display = "none";
+                document.body.appendChild(newLink);
+            }
+
+            newLink.click();
+        }
+    </script>
+</body>
+
+</html>
