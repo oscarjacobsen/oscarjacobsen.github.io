@@ -1,0 +1,111 @@
+﻿<html>
+
+<head>
+    <title>IMA Example receiver</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+    <script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <script type="text/javascript" src="player.js"></script>
+    <style>
+        video {
+            width: 100%;
+            height: 100%;
+            overflow-y: hidden;
+        }
+
+        #adContainer {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="adContainer">
+        <video id="mediaElement"></video>
+        <script>
+            var player = new Player(document.getElementById('mediaElement'));
+        </script>
+    </div>
+    <script>
+        /**
+     * Handles errors from AdsLoader and AdsManager.
+     * @param {ima.AdErrorEvent} adErrorEvent error
+     * @private
+     */
+        Player.prototype.onAdError_ = function (adErrorEvent) {
+            this.broadcast_('Ad Error: ' + adErrorEvent.getError().toString());
+            // Handle the error logging.
+            if (this.adsManager_) {
+                this.adsManager_.destroy();
+            }
+            this.mediaElement_.play();
+        };
+
+        /**
+         * When content is paused by AdsManager to start playing an ad.
+         * @private
+         */
+        Player.prototype.onContentPauseRequested_ = function () {
+            this.currentContentTime_ = this.mediaElement_.currentTime;
+            this.broadcast_('onContentPauseRequested,' + this.currentContentTime_);
+            this.mediaManager_.onEnded = function (event) { };
+            this.mediaManager_.onSeek = function (event) { };
+        };
+
+        /**
+         * When an ad finishes playing and AdsManager resumes content.
+         * @private
+         */
+        Player.prototype.onContentResumeRequested_ = function () {
+            this.broadcast_('onContentResumeRequested');
+            this.mediaManager_.onEnded = this.originalOnEnded_.bind(this.mediaManager_);
+            this.mediaManager_.onSeek = this.originalOnSeek_.bind(this.mediaManager_);
+
+            this.originalOnLoad_(this.originalOnLoadEvent_);
+            this.seek_(this.currentContentTime_);
+        };
+
+        /**
+         * Destroys AdsManager when all requested ads have finished playing.
+         * @private
+         */
+        Player.prototype.onAllAdsCompleted_ = function () {
+            if (this.adsManager_) {
+                this.adsManager_.destroy();
+            }
+        };
+
+        /**
+         * Sets time video should seek to when content resumes and requests ad tag.
+         * @param {!string} adTag ad tag to be requested.
+         * @param {!float} currentTime time of content video to resume from.
+         * @private
+         */
+        Player.prototype.requestAd_ = function (adTag, currentTime) {
+            if (currentTime != 0) {
+                this.currentContentTime_ = currentTime;
+            }
+            var adsRequest = new google.ima.AdsRequest();
+            adsRequest.adTagUrl = adTag;
+            adsRequest.linearAdSlotWidth = this.mediaElement_.width;
+            adsRequest.linearAdSlotHeight = this.mediaElement_.height;
+            adsRequest.nonLinearAdSlotWidth = this.mediaElement_.width;
+            adsRequest.nonLinearAdSlotHeight = this.mediaElement_.height / 3;
+            this.adsLoader_.requestAds(adsRequest);
+        };
+
+        /**
+         * Seeks content video.
+         * @param {!float} time time to seek to.
+         * @private
+         */
+        Player.prototype.seek_ = function (time) {
+            this.currentContentTime_ = time;
+            this.mediaElement_.currentTime = time;
+            this.mediaElement_.play();
+        };
+    </script>
+</body>
+
+</html>
