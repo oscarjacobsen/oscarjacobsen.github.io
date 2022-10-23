@@ -51,7 +51,7 @@
                 }
                 //text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + "<br>"
             }
-            $(".vegobjekttyper").html(text + "<br>"); //+ JSON.stringify(data));
+            $(".vegobjekttyper").html(text + "<br>" + JSON.stringify(data[0].egenskapstyper)); //+ JSON.stringify(data));
         });
 
         let saveFile = () => {
