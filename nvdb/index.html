@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>NVDB &harr; IFC</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.24/"></script>
+    <script>
+        require(["esri/Map", "esri/views/SceneView"], (Map, SceneView) => {
+            const map = new Map({
+                basemap: "topo-vector",
+                ground: "world-elevation"
+            });
+            const view = new SceneView({
+                container: "viewDiv", // Reference to the scene div created in step 5
+                map: map, // Reference to the map object created before the scene
+                scale: 10000000, // Sets the initial scale to 1:50,000,000
+                center: [8.4689, 60.4720] // Sets the center point of view with lon/lat
+            });
+        });
+    </script>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #buttondiv {
+            width: 100%;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Nasjonal Vegdatabank &harr; BIM (.ifc)</h1>
+    <p>Proof-Of-Concept App: For å håndtere NVDB-struktur i BIM .ifc-struktur.<br>API=ok, TODO: ca resten:)</p>
+    <!--Add to button to save the data.-->
+    <div id="viewDiv"></div>
+    <div id="map" style="height:600px; border:1px solid #000;"></div>
+    <div id="info" style="padding:5px; margin:5px; background-color:#eee;"></div>
+    <div id="buttondiv">
+        <p><b>Last ned NVDB Property Set Definitions i:</b></p>
+        <input type="button" id="bt" value="Human .xlsx" onclick="saveFile()" />
+        <input type="button" id="bt" value="Revit .xml" onclick="saveFile()" />
+        <input type="button" id="bt" value="Blender .ifc" onclick="saveFile()" />
+        <input type="button" id="bt" value="Peanuts .txt" onclick="saveFile()" />
+    </div>
+    <br>
+    <div class="status"></div>
+    <br>
+    <div class="vegobjekttyper"></div>
+    <script>
+
+        // Getting NVDB LES API Status
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/status', function (data) {
+            var nvdb_status_json = data
+            var text = ""
+            text += "Versjon: " + nvdb_status_json.datakatalog.versjon + "<br>"
+            text += "Dato: " + nvdb_status_json.datakatalog.dato + "<br>"
+            text += "Sist oppdatert: " + nvdb_status_json.datagrunnlag.sist_oppdatert + "<br>"
+            $(".status").html(text);
+        });
+
+
+        // Getting NVDB LES API Vegobjekttyper 
+        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
+            var nvdb_vegobjekttyper_json = data
+            var text = ""
+            for (let i = 0; i < nvdb_vegobjekttyper_json.length; i++) {
+                var egenskapstyper = nvdb_vegobjekttyper_json[i].egenskapstyper
+                if (!nvdb_vegobjekttyper_json[i].sosinvdbnavn.includes("Utgår_")) {
+                    text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + ", " + nvdb_vegobjekttyper_json[i].stedfesting + "<br>"
+                }
+                //text += nvdb_vegobjekttyper_json[i].sosinvdbnavn + "<br>"
+            }
+            $(".vegobjekttyper").html(text + "<br>" + JSON.stringify(data[0].egenskapstyper)); //+ JSON.stringify(data));
+        });
+
+        let saveFile = () => {
+
+            // Get the data from each element on the form.
+            const name = document.getElementById('txtName');
+            const age = document.getElementById('txtAge');
+            const email = document.getElementById('txtEmail');
+            const country = document.getElementById('selCountry');
+            const msg = document.getElementById('msg');
+
+            // This variable stores all the data.
+            let data =
+                '\r Name: ' + name.value + ' \r\n ' +
+                'Age: ' + age.value + ' \r\n ' +
+                'Email: ' + email.value + ' \r\n ' +
+                'Country: ' + country.value + ' \r\n ' +
+                'Message: ' + msg.value;
+
+            // Convert the text to BLOB.
+            const textToBLOB = new Blob([data], { type: 'text/plain' });
+            const sFileName = 'formData.txt';	   // The file to save the data.
+
+            let newLink = document.createElement("a");
+            newLink.download = sFileName;
+
+            if (window.webkitURL != null) {
+                newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+            }
+            else {
+                newLink.href = window.URL.createObjectURL(textToBLOB);
+                newLink.style.display = "none";
+                document.body.appendChild(newLink);
+            }
+
+            newLink.click();
+        }
+    </script>
+</body>
+
+</html>
