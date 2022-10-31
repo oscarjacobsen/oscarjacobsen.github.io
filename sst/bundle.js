@@ -77437,15 +77437,36 @@ class IFCLoader extends Loader {
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2Vhbmd1eSIsImEiOiJja2lxY280Y2UwNG4xMnhsanRsanhqamRiIn0.W8R_nJ4wEtFpZn_UxkTRxQ';
 const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/dark-v10',
+    style: 'mapbox://styles/mapbox/satellite-streets-v11',
     zoom: 20.5,
-    center: [13.4453, 52.4910],
+    center: [10.726997, 59.917216],
     pitch: 75,
     bearing: -80,
     antialias: true
 });
 
-const modelOrigin = [13.4453, 52.4910];
+/*
+map.on('load', () => {
+    map.addSource('mapbox-dem', {
+        'type': 'raster-dem',
+        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        'tileSize': 512,
+        'maxzoom': 14
+    });
+    map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+
+    map.addLayer({
+        'id': 'sky',
+        'type': 'sky',
+        'paint': {
+            'sky-type': 'atmosphere',
+            'sky-atmosphere-sun': [0.0, 90.0],
+            'sky-atmosphere-sun-intensity': 15
+        }
+    });
+});
+*/
+const modelOrigin = [10.726997, 59.917216];
 const modelAltitude = 0;
 const modelRotate = [Math.PI / 2, .72, 0];
 
