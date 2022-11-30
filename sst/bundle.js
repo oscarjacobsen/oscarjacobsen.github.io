@@ -77439,7 +77439,7 @@ const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v11',
     zoom: 20.5,
-    center: [10.726997, 59.917216],
+    center: [10.5535922, 59.8941638],
     pitch: 75,
     bearing: -80,
     antialias: true
@@ -77499,7 +77499,7 @@ const customLayer = {
     onAdd: function () {
         const ifcLoader = new IFCLoader();
         ifcLoader.ifcManager.setWasmPath('./');
-        ifcLoader.load('./tunnel.ifc', function (model) {
+        ifcLoader.load('./susanne.ifc', function (model) {
             scene.add(model);
         });
 
