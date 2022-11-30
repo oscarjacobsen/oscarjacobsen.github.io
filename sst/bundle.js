@@ -77468,7 +77468,7 @@ map.on('load', () => {
 */
 const modelOrigin = [10.5535922, 59.8941638];
 const modelAltitude = 0;
-const modelRotate = [0, 0, 0]//[Math.PI / 2, .72, 0];
+const modelRotate = [Math.PI / 2, .72, 0];
 
 const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude);
 
@@ -77499,7 +77499,7 @@ const customLayer = {
     onAdd: function () {
         const ifcLoader = new IFCLoader();
         ifcLoader.ifcManager.setWasmPath('./');
-        ifcLoader.load('./susanne.ifc', function (model) {
+        ifcLoader.load('./tunnel.ifc', function (model) {
             scene.add(model);
         });
 
