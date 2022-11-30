@@ -77466,9 +77466,9 @@ map.on('load', () => {
     });
 });
 */
-const modelOrigin = [10.726997, 59.917216];
+const modelOrigin = [10.5535922, 59.8941638];
 const modelAltitude = 0;
-const modelRotate = [Math.PI / 2, .72, 0];
+const modelRotate = [0, 0, 0]//[Math.PI / 2, .72, 0];
 
 const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude);
 
