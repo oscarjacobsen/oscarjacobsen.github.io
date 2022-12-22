@@ -3,7 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MJs jul</title>
+    <title>@doktormjgjørjul2022</title>
     <link rel="icon" href="./player.png">
     <style>
         html, body {
@@ -57,6 +57,7 @@
                         y: canvas.height - this.height - 20
                     }
 
+
                 }
 
 
@@ -103,8 +104,14 @@
                 projectileImgIdx += 1
 
 
-                if (projectileImgIdx == 8){
+                if (projectileImgIdx == 7){
                     image2.src = "./pills.png"
+                    
+                }
+                else if (projectileImgIdx == 8){
+                    image2.src = "./speculum.png"
+                    image2.width *= 2
+                    image2.height *= 2
                     
                 }
                 else if (projectileImgIdx == 9){
@@ -128,6 +135,8 @@
                 
 
                 this.image = image2
+
+
             }
 
             draw() {
@@ -147,10 +156,67 @@
             }
         }
         
+        class Invader {
+            constructor({position, velocity}) {
+                this.position = position
+                this.velocity = velocity
+
+                //this.rotation = 0dffa
+
+                const image = new Image()
+                image.src = "./player_.png"
+
+                this.image = image
+
+                this.width = image.width / 10
+                this.height = image.height / 10
+
+                    //this.position = {
+                    //    x: canvas.width / 2 - this.width / 2,
+                    //    y: canvas.height /2
+                    //}
+
+
+
+            }
+
+            draw() {
+                //c.fillStyle = "red"
+                //c.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+                //canvas.width  = window.innerWidth;
+                //canvas.height = window.innerHeight;
+
+                //c.save()
+                //c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2)
+                //c.rotate(player.rotation)
+                //c.translate(-player.position.x - player.width / 2, -player.position.y - player.height / 2)
+
+                c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+
+                //c.restore()
+            }
+
+            update() {
+
+                if (this.image) {
+
+                    this.draw()
+                    this.position.x += this.velocity.x
+                    this.position.y += this.velocity.y
+
+                }
+                
+            }
+        }
+
+        
         const speedDelta = 5
+        var invaderRate = 0.99
 
         const player = new Player()
         const projectiles = []
+        const invaders = []
 
         const keys = {
             left: {
@@ -176,6 +242,8 @@
 
             c.fillStyle = "black"
             c.fillRect(0, 0, canvas.width, canvas.height)
+
+            
 
             // Changing player position on keys
             if (keys.left.pressed && player.position.x >= 0){
@@ -214,9 +282,60 @@
             
             player.update()
 
+            
+
+            if (Math.random() > invaderRate){
+
+                console.log("FISK")
+
+                var x = Math.floor(Math.random() * canvas.width)
+
+                invaders.push(
+                    new Invader({
+                        position: {
+                            x: x,
+                            y: 0
+                        },
+                        velocity: {
+                            x: 0,
+                            y: 5
+                        }
+                    })
+                )
+            }
+
             // Projectiles
-            projectiles.forEach(projectile=>{
-                projectile.update()
+            invaders.forEach((invader, idx)=>{
+
+                if (invader.position.y > canvas.height){
+                    console.log("GAME OVER")
+                    setTimeout(()=>{
+                        invaders.splice(idx, 1)
+                    }, 0)
+                    //invaders = []
+                }
+                else{
+                    console.log(invaders)
+                    //print(invaders.at(-1).position.x)
+                    invader.update()
+                }
+            })
+
+
+
+            // Projectiles
+            projectiles.forEach((projectile, idx)=>{
+
+                if (projectile.position.y < 0){
+                    setTimeout(()=>{
+                        projectiles.splice(idx, 1)
+                    }, 0)
+                    
+
+                }
+                else{
+                    projectile.update()
+                }
             })
             
         }
@@ -280,7 +399,7 @@ document.addEventListener("DOMContentLoaded", startup);
                         },
                         velocity: {
                             x: 0,
-                            y: -5
+                            y: -7
                         }
                     })
                 )
@@ -291,6 +410,25 @@ document.addEventListener("DOMContentLoaded", startup);
                 console.log("Start Menu")
 
             }
+            else if (key == "+") {
+
+                console.log("+")
+                invaderRate += 0.01
+
+                if (invaderRate > 0.99){
+                    invaderRate = 0.99
+                }
+            }
+
+            else if (key == "-") {
+
+                console.log("+")
+                invaderRate -= 0.01
+
+                if (invaderRate < 0.01){
+                invaderRate = 0.01
+            }
+}
 
         })
 
