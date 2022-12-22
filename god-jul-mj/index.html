@@ -55,15 +55,24 @@
             draw() {
                 //c.fillStyle = "red"
                 //c.fillRect(this.position.x, this.position.y, this.width, this.height)
-                if (this.image)
-                    c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+                
+                c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
             }
 
             update() {
-                this.draw()
-                this.position.x += this.velocity.x
+
+                if (this.image) {
+
+                    this.draw()
+                    this.position.x += this.velocity.x
+                    this.position.y += this.velocity.y
+
+                }
+                
             }
         }
+
+        const speedDelta = 5
 
         const player = new Player()
 
@@ -72,6 +81,12 @@
                 pressed: false
             },
             right: {
+                pressed: false
+            },
+            up: {
+                pressed: false
+            },
+            down: {
                 pressed: false
             },
             shoot: {
@@ -86,45 +101,142 @@
             c.fillStyle = "black"
             c.fillRect(0, 0, canvas.width, canvas.height)
 
-            // if (keys.left.pressed){
-            //
-            //}
+            // Changing player position on keys
+            if (keys.left.pressed && player.position.x >= 0){
+                player.velocity.x = -1 * speedDelta
+            }
+            else if (keys.right.pressed && player.position.x <= canvas.width - player.width){
+                player.velocity.x = 1 * speedDelta
+            }
+            else if (keys.up.pressed && player.position.y >= 0){
+                player.velocity.y = -1 * speedDelta
+            }
+            else if (keys.down.pressed && player.position.y <= canvas.height - player.height){
+                player.velocity.y = 1 * speedDelta
+            }
+            else {
+                player.velocity.x = 0
+                player.velocity.y = 0
+            }
+
+            if (player.position.x < 0){
+                player.position.x = 0
+            }
+            else if (player.position.x > canvas.width - player.width){
+                player.position.x = canvas.width - player.width
+            }
+            
 
             player.update()
+
+            
         }
 
         animate()
 
+        function startup() {
+            canvas.addEventListener('touchstart', (event)=>{
+                player.position.x = e.touches[0].clientX
+                player.position.y = e.touches[0].clientY
+            });
+            //canvas.addEventListener('touchend', handleEnd);
+            //canvas.addEventListener('touchcancel', handleCancel);
+            canvas.addEventListener('touchmove', (event)=>{
+                player.position.x = e.touches[0].clientX
+                player.position.y = e.touches[0].clientY
+            });
+            //log('Initialized.');
+        }
+
+document.addEventListener("DOMContentLoaded", startup);
+
+        // Getting keydown events
         addEventListener("keydown", ({ key }) => {
 
             console.log(key)
 
-
             if (key == "ArrowLeft" || key == "a") {
 
-                console.log("To the left to the left")
-                player.velocity.x += -5
-
-
+                console.log("Start Left")
+                keys.left.pressed = true
 
             }
             else if (key == "ArrowRight" || key == "d") {
 
-                console.log("To the right to the right")
+                console.log("Start Right")
+                keys.right.pressed = true
+
+            }
+            else if (key == "ArrowUp" || key == "w") {
+
+                console.log("Start Up")
+                keys.up.pressed = true
+
+            }
+            else if (key == "ArrowDown" || key == "s") {
+
+                console.log("Start Down")
+                keys.down.pressed = true
 
             }
             else if (key == " " || key == "d") {
 
-                console.log("To the right to the right")
+                console.log("Start Shoot")
+                player.position.x += 5
 
             }
             else if (key == "Escape" || key == "p") {
 
-                console.log("Menu")
+                console.log("Start Menu")
 
             }
 
         })
+
+        addEventListener("keyup", ({ key }) => {
+
+console.log(key)
+
+
+if (key == "ArrowLeft" || key == "a") {
+
+    console.log("Stop Left")
+    keys.left.pressed = false
+
+}
+else if (key == "ArrowRight" || key == "d") {
+
+    console.log("Stop Right")
+    keys.right.pressed = false
+
+}
+else if (key == "ArrowUp" || key == "w") {
+
+console.log("Start Up")
+keys.up.pressed = false
+
+}
+else if (key == "ArrowDown" || key == "s") {
+
+console.log("Start Down")
+keys.down.pressed = false
+
+}
+else if (key == " " || key == "d") {
+
+    console.log("Stop shoot")
+    //player.position.x += 5
+
+}
+else if (key == "Escape" || key == "p") {
+
+    console.log("Stop Menu")
+
+}
+
+})
+
+
     </script>
 </body>
 
