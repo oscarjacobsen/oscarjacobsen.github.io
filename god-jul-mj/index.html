@@ -2,10 +2,15 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MJs jul</title>
+    <link rel="icon" href="./player.png">
     <style>
-        body {
-            margin: 0
-        }
+        html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+}
     </style>
 </head>
 
@@ -20,6 +25,9 @@
         canvas.width = innerWidth
         canvas.height = innerHeight
 
+        
+        var projectileImgIdx = 0
+
         class Player {
             constructor() {
                 this.position = {
@@ -32,6 +40,8 @@
                     y: 0
                 }
 
+                this.rotation = 0
+
                 const image = new Image()
                 image.src = "./player.png"
 
@@ -39,8 +49,8 @@
 
                     this.image = image
 
-                    this.width = image.width / 10
-                    this.height = image.height / 10
+                    this.width = image.width / 2
+                    this.height = image.height / 2
 
                     this.position = {
                         x: canvas.width / 2 - this.width / 2,
@@ -55,8 +65,18 @@
             draw() {
                 //c.fillStyle = "red"
                 //c.fillRect(this.position.x, this.position.y, this.width, this.height)
-                
+
+                //canvas.width  = window.innerWidth;
+                //canvas.height = window.innerHeight;
+
+                c.save()
+                c.translate(player.position.x + player.width / 2, player.position.y + player.height / 2)
+                c.rotate(player.rotation)
+                c.translate(-player.position.x - player.width / 2, -player.position.y - player.height / 2)
+
                 c.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+
+                c.restore()
             }
 
             update() {
@@ -72,9 +92,65 @@
             }
         }
 
+        class Projectile {
+            constructor({ position, velocity }) {
+                this.position = position
+                this.velocity = velocity
+                this.radius = 5
+
+                const image2 = new Image()
+
+                projectileImgIdx += 1
+
+
+                if (projectileImgIdx == 8){
+                    image2.src = "./pills.png"
+                    
+                }
+                else if (projectileImgIdx == 9){
+                    image2.src = "./hammer.png"
+                    
+                }
+                else if (projectileImgIdx == 10){
+                    image2.src = "./chainsaw.png"   
+                    image2.width *= 2
+                    image2.height *= 2
+                    
+                }
+                else{
+                    image2.src = "./vaksine.png"
+                    image2.width *= 3
+                    image2.height *= 3
+                }
+                if (projectileImgIdx >= 10){
+                    projectileImgIdx = -1
+                }
+                
+
+                this.image = image2
+            }
+
+            draw() {
+                //c.beginPath()
+                //c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI*2)
+                //c.fillStyle = "red"
+                //c.fill()
+                //c.closePath()
+
+                c.drawImage(this.image, this.position.x, this.position.y, this.image.width/10, this.image.height/10)
+            }
+
+            update(){
+                this.draw()
+                this.position.x += this.velocity.x
+                this.position.y += this.velocity.y
+            }
+        }
+        
         const speedDelta = 5
 
         const player = new Player()
+        const projectiles = []
 
         const keys = {
             left: {
@@ -104,9 +180,11 @@
             // Changing player position on keys
             if (keys.left.pressed && player.position.x >= 0){
                 player.velocity.x = -1 * speedDelta
+                player.rotation = -.15
             }
             else if (keys.right.pressed && player.position.x <= canvas.width - player.width){
                 player.velocity.x = 1 * speedDelta
+                player.rotation = .15
             }
             else if (keys.up.pressed && player.position.y >= 0){
                 player.velocity.y = -1 * speedDelta
@@ -117,6 +195,7 @@
             else {
                 player.velocity.x = 0
                 player.velocity.y = 0
+                player.rotation = 0
             }
 
             if (player.position.x < 0){
@@ -125,10 +204,20 @@
             else if (player.position.x > canvas.width - player.width){
                 player.position.x = canvas.width - player.width
             }
-            
 
+            if (player.position.y < 0){
+                player.position.y = 0
+            }
+            else if (player.position.y > canvas.height - player.height){
+                player.position.y = canvas.height - player.height
+            }
+            
             player.update()
 
+            // Projectiles
+            projectiles.forEach(projectile=>{
+                projectile.update()
+            })
             
         }
 
@@ -182,7 +271,19 @@ document.addEventListener("DOMContentLoaded", startup);
             else if (key == " " || key == "d") {
 
                 console.log("Start Shoot")
-                player.position.x += 5
+
+                projectiles.push(
+                    new Projectile({
+                        position: {
+                            x: player.position.x,
+                            y: player.position.y
+                        },
+                        velocity: {
+                            x: 0,
+                            y: -5
+                        }
+                    })
+                )
 
             }
             else if (key == "Escape" || key == "p") {
@@ -235,6 +336,12 @@ else if (key == "Escape" || key == "p") {
 }
 
 })
+
+//window.addEventListener("resize", ()=>{
+//            canvas.width  = window.width,
+//            canvas.height = window.height
+//            
+//        })
 
 
     </script>
