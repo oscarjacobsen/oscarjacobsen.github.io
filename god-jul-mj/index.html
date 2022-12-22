@@ -27,6 +27,7 @@
 
         
         var projectileImgIdx = 0
+        var invaderImgIdx = 0
 
         class Player {
             constructor() {
@@ -163,13 +164,47 @@
 
                 //this.rotation = 0dffa
 
-                const image = new Image()
-                image.src = "./player_.png"
+                const imageInvader = new Image()
 
-                this.image = image
+                invaderImgIdx += 1
 
-                this.width = image.width / 10
-                this.height = image.height / 10
+
+                if (invaderImgIdx == 7){
+                    imageInvader.src = "./drammen-sykehus.png"
+                    imageInvader.width *= 3
+                    imageInvader.height *= 3
+                    
+                }
+                else if (invaderImgIdx == 8){
+                    imageInvader.src = "./speculum.png"
+                    imageInvader.width *= 2
+                    imageInvader.height *= 2
+                    
+                }
+                else if (invaderImgIdx == 9){
+                    imageInvader.src = "./hammer.png"
+                    
+                }
+                else if (invaderImgIdx == 10){
+                    imageInvader.src = "./chainsaw.png"   
+                    imageInvader.width *= 2
+                    imageInvader.height *= 2
+                    
+                }
+                else{
+                    imageInvader.src = "./Trond-Viggo-Torgersen.jpg"
+                    //imageInvader.width *= 3
+                    //imageInvader.height *= 3
+                }
+                if (invaderImgIdx >= 10){
+                    invaderImgIdx = -1
+                }
+                
+
+                this.image = imageInvader
+
+                this.width = this.image.width / 10
+                this.height = this.image.height / 10
 
                     //this.position = {
                     //    x: canvas.width / 2 - this.width / 2,
