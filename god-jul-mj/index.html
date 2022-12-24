@@ -17,7 +17,7 @@
 <body>
     <!--<h1>God Jul bby</h1>-->
     <p style="position:fixed; z-index: 10; color: white; left: 10px; top: 10px; margin: 0; font-family: sant-serif; font-size: 30px;"
-    ><span>Lykke til</span><br><br><span>Score: </span><span id="scoreEl">0</span><span> av 10 000</span><br><br><span id="premieLink"></span><br><br><span id="gave"></span></p>
+    ><span>Finn frem maccen, lykke til</span><br><br><span>Score: </span><span id="scoreEl">0</span><span> av 10 000</span><br><br><span id="premieLink"></span><br><br><span id="gave"></span></p>
     <canvas></canvas>
 
     <script>
@@ -283,12 +283,37 @@
             }
         }
 
+        class Particle {
+            constructor({position, velocity, radius, color}){
+                this.position = position
+                this.velocity = velocity
+
+                this.radius = radius
+                this.color = color
+            }
+
+            draw(){
+                c.beginPath()
+                c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+                c.fillStyle = this.color
+                c.fill()
+                c.closePath()
+            }
+
+            update(){
+                this.draw()
+                this.position.x += this.velocity.x
+                this.position.y += this.velocity.y
+            }
+        }
+
         
         
 
         const player = new Player()
         const projectiles = []
         const invaders = []
+        const particles = []
 
         const keys = {
             left: {
@@ -313,6 +338,12 @@
 
             c.fillStyle = "black"
             c.fillRect(0, 0, canvas.width, canvas.height)
+
+            player.update()
+
+            particles.forEach(particle => {
+                particle.update()
+            })
 
             
 
@@ -351,7 +382,7 @@
                 player.position.y = canvas.height - player.height
             }
             
-            player.update()
+            
 
             
 
@@ -395,10 +426,33 @@
 
                 projectiles.forEach((projectile, jdx)=>{
                     if (projectile.position.y >= invader.position.y 
-                    && projectile.position.y <= invader.position.y + invader.image.height 
+                    && projectile.position.y <= invader.position.y + 20//invader.image.height
                     && projectile.position.x >= invader.position.x 
-                    && projectile.position.x <= invader.position.x + invader.image.width
+                    && projectile.position.x <= invader.position.x + 200//invader.image.width
                     ){
+
+                        var pointColor = ""
+                        
+                        if (invader.imgIdx == 3){
+                            pointColor = "red"
+                        }
+                        else {
+                            pointColor = "yellow"
+                        }
+
+                        particles.push(new Particle({
+                            position: {
+                                x: invader.position.x, // invader.image.width / 2,
+                                y: invader.position.y //- invader.image.height / 2
+                            },
+                            velocity: {
+                                x: 0,
+                                y: 10
+                            },
+                            radius: 10,
+                            color: pointColor
+                        }))
+
                         setTimeout(()=>{
                         invaders.splice(idx, 1)
                         projectiles.splice(jdx, 1)
@@ -413,21 +467,22 @@
 
                         if (invader.imgIdx == 3){
                             premieLink.innerHTML = "Auch, ikke skyt meg; skyt heller Trond Vigg o..."
-                            score = 0
+                            score -= 1000
                         }
 
                         scoreEl.innerHTML = score
 
                         if (score >= 1000){
-                            alert("BRAVO! Da gjenstår kun siste hindring; klar? :)<3");
-                            let fifaYear = prompt("Når ble FIFA grunnlagt sa du?", "")
+                            let temp = prompt("BRAVO! Da gjenstår kun siste lille hindring; klar? :)<3", "");
+                            let fifaYear = prompt("Når ble FIFA grunnlagt?", "")
                             if (fifaYear == "2004"){
                                 score = 0
                                 gaveLink.innerHTML = "<a href='./god-jul-mj.jpg' download style='font-size:30px;color:pink;'>Du er ok+, klikk her</a>"
                             }
                             else{
                                 score = -1000
-                                premieLink.innerHTML = "...."
+                                scoreEl.innerHTML = score
+                                premieLink.innerHTML = "Du lærer aldri"
                             }
                             
                         }
