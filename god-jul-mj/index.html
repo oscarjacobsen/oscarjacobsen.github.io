@@ -16,8 +16,8 @@
 
 <body>
     <!--<h1>God Jul bby</h1>-->
-    <p style="position:fixed; z-index: 10; color: white; left: 10px; top: 10px; margin: 0; font-family: sant-serif; font-size: 14px;"
-    ><span>God Jul, lykke til</span><br><br><span>Score: </span><span id="scoreEl">0</span><span> av 10 000</span><br><br><span id="premieLink"></span></p>
+    <p style="position:fixed; z-index: 10; color: white; left: 10px; top: 10px; margin: 0; font-family: sant-serif; font-size: 30px;"
+    ><span>Lykke til</span><br><br><span>Score: </span><span id="scoreEl">0</span><span> av 10 000</span><br><br><span id="premieLink"></span><br><br><span id="gave"></span></p>
     <canvas></canvas>
 
     <script>
@@ -26,6 +26,8 @@
 
         const scoreEl = document.querySelector("#scoreEl")
         const premieLink = document.querySelector("#premieLink")
+
+        const gaveLink = document.querySelector("#gave")
 
         canvas.width = innerWidth
         canvas.height = innerHeight
@@ -165,6 +167,41 @@
                 this.position.y += this.velocity.y
             }
         }
+
+        const imageDrammen = new Image()
+        imageDrammen.src = "./drammen-sykehus.png"
+        imageDrammen.width *= 3
+        imageDrammen.height *= 3
+
+        const imageSpeculum = new Image()
+        imageSpeculum.src = "./speculum.png"
+        imageSpeculum.width *= 2
+        imageSpeculum.height *= 2
+
+        const imageTrondViggo = new Image()
+        imageTrondViggo.src = "./Trond-Viggo-Torgersen.jpg"
+        imageTrondViggo.width *= 2
+        imageTrondViggo.height *= 2
+
+        const imageOscar = new Image()
+        imageOscar.src = "./oscar-boytoy.jpg"
+        imageOscar.width *= 0.5
+        imageOscar.height *= 0.5
+
+        const imageSauda = new Image()
+        imageSauda.src = "./sauda.png"
+        imageSauda.width *= 3
+        imageSauda.height *= 3
+
+        const imageSuldal = new Image()
+        imageSuldal.src = "./suldal.png"
+        imageSuldal.width *= 3
+        imageSuldal.height *= 3
+
+        const imagePjusk = new Image()
+        imagePjusk.src = "./pjusk.png"
+        imagePjusk.width *= 3
+        imagePjusk.height *= 3
         
         class Invader {
             constructor({position, velocity}) {
@@ -181,44 +218,28 @@
 
 
                 if (invaderImgIdx == 7){
-                    imageInvader.src = "./drammen-sykehus.png"
-                    imageInvader.width *= 3
-                    imageInvader.height *= 3
-                    
+                    this.image = imageTrondViggo
                 }
                 else if (invaderImgIdx == 8){
-                    imageInvader.src = "./speculum.png"
-                    imageInvader.width *= 2
-                    imageInvader.height *= 2
+                    this.image = imageSuldal
                     
                 }
                 else if (invaderImgIdx == 3){
-                    imageInvader.src = "./oscar-boytoy.jpg"
-                    imageInvader.width *= 0.5
-                    imageInvader.height *= 0.5
-                    
+                    this.image = imageOscar
                 }
                 else if (invaderImgIdx == 9){
-                    imageInvader.src = "./hammer.png"
-                    
-                }
-                else if (invaderImgIdx == 10){
-                    imageInvader.src = "./chainsaw.png"   
-                    imageInvader.width *= 2
-                    imageInvader.height *= 2
+                    this.image = imageSauda
                     
                 }
                 else{
-                    imageInvader.src = "./Trond-Viggo-Torgersen.jpg"
-                    //imageInvader.width *= 3
-                    //imageInvader.height *= 3
+                    this.image = imagePjusk
                 }
                 if (invaderImgIdx >= 10){
                     invaderImgIdx = -1
                 }
                 
 
-                this.image = imageInvader
+                //this.image = imageInvader
 
                 this.width = this.image.width / 10
                 this.height = this.image.height / 10
@@ -391,14 +412,24 @@
                         }
 
                         if (invader.imgIdx == 3){
-                            premieLink.innerHTML = "Auch, så glad er du i meg..."
+                            premieLink.innerHTML = "Auch, ikke skyt meg; skyt heller Trond Vigg o..."
                             score = 0
                         }
 
                         scoreEl.innerHTML = score
 
-                        if (score >= 2000){
-                            premieLink.innerHTML = "<a href='https://vg.no'>'Gratulerer!!'</a>"
+                        if (score >= 1000){
+                            alert("BRAVO! Da gjenstår kun siste hindring; klar? :)<3");
+                            let fifaYear = prompt("Når ble FIFA grunnlagt sa du?", "")
+                            if (fifaYear == "2004"){
+                                score = 0
+                                gaveLink.innerHTML = "<a href='./god-jul-mj.jpg' download style='font-size:30px;color:pink;'>Du er ok+, klikk her</a>"
+                            }
+                            else{
+                                score = -1000
+                                premieLink.innerHTML = "...."
+                            }
+                            
                         }
                     }
                 })
