@@ -40,8 +40,49 @@
         var projectileImgIdx = 0
         var invaderImgIdx = 0
 
+        const imageDrammen = new Image()
+        imageDrammen.src = "./drammen-sykehus.png"
+        imageDrammen.width *= 3
+        imageDrammen.height *= 3
+
+        const imageSpeculum = new Image()
+        imageSpeculum.src = "./speculum.png"
+        imageSpeculum.width *= 2
+        imageSpeculum.height *= 2
+
+        const imageTrondViggo = new Image()
+        imageTrondViggo.src = "./Trond-Viggo-Torgersen.jpg"
+        imageTrondViggo.width *= 2
+        imageTrondViggo.height *= 2
+
+        const imageOscar = new Image()
+        imageOscar.src = "./oscar-boytoy.jpg"
+        imageOscar.width *= 0.5
+        imageOscar.height *= 0.5
+
+        const imageSauda = new Image()
+        imageSauda.src = "./sauda.png"
+        imageSauda.width *= 3
+        imageSauda.height *= 3
+
+        const imageSuldal = new Image()
+        imageSuldal.src = "./suldal.png"
+        imageSuldal.width *= 3
+        imageSuldal.height *= 3
+
+        const imagePjusk = new Image()
+        imagePjusk.src = "./pjusk.png"
+        imagePjusk.width *= 3
+        imagePjusk.height *= 3
+
+        const imagePlayer0 = new Image()
+        imagePlayer0.src = "./player-0.png"
+
+        const imagePlayer1 = new Image()
+        imagePlayer1.src = "./player.png"
+
         class Player {
-            constructor() {
+            constructor({imageName}) {
                 this.position = {
                     x: 200,
                     y: 200
@@ -54,8 +95,10 @@
 
                 this.rotation = 0
 
+                this.image = imagePlayer0
+
                 const image = new Image()
-                image.src = "./player.png"
+                image.src = imageName
 
                 image.onload = () => {
 
@@ -168,40 +211,9 @@
             }
         }
 
-        const imageDrammen = new Image()
-        imageDrammen.src = "./drammen-sykehus.png"
-        imageDrammen.width *= 3
-        imageDrammen.height *= 3
-
-        const imageSpeculum = new Image()
-        imageSpeculum.src = "./speculum.png"
-        imageSpeculum.width *= 2
-        imageSpeculum.height *= 2
-
-        const imageTrondViggo = new Image()
-        imageTrondViggo.src = "./Trond-Viggo-Torgersen.jpg"
-        imageTrondViggo.width *= 2
-        imageTrondViggo.height *= 2
-
-        const imageOscar = new Image()
-        imageOscar.src = "./oscar-boytoy.jpg"
-        imageOscar.width *= 0.5
-        imageOscar.height *= 0.5
-
-        const imageSauda = new Image()
-        imageSauda.src = "./sauda.png"
-        imageSauda.width *= 3
-        imageSauda.height *= 3
-
-        const imageSuldal = new Image()
-        imageSuldal.src = "./suldal.png"
-        imageSuldal.width *= 3
-        imageSuldal.height *= 3
-
-        const imagePjusk = new Image()
-        imagePjusk.src = "./pjusk.png"
-        imagePjusk.width *= 3
-        imagePjusk.height *= 3
+        
+        //imagePlayer0.width *= 3
+        //imagePlayer0.height *= 3
         
         class Invader {
             constructor({position, velocity}) {
@@ -310,7 +322,7 @@
         
         
 
-        const player = new Player()
+        var player = new Player({imageName: "./player-0.png"})
         const projectiles = []
         const invaders = []
         const particles = []
@@ -468,6 +480,10 @@
                         if (invader.imgIdx == 3){
                             premieLink.innerHTML = "Auch, ikke skyt meg; skyt heller Trond Vigg o..."
                             score -= 1000
+
+                            if (score <= 5000){
+                                    player = new Player({imageName: "./player-0.png"})
+                                }
                         }
 
                         scoreEl.innerHTML = score
@@ -483,9 +499,21 @@
                                 score = -1000
                                 scoreEl.innerHTML = score
                                 premieLink.innerHTML = "Du lærer aldri"
+
+                                if (score <= 5000){
+                                    player = new Player({imageName: "./player-0.png"})
+                                }
                             }
                             
                         }
+                        else if (score == 5000){
+                            player = new Player({imageName: "./player.png"})
+                        }
+                        else {
+                            
+                            
+                        }
+                        
                     }
                 })
             })
