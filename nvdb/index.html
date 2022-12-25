@@ -41,8 +41,8 @@
     <h1>Nasjonal Vegdatabank &harr; BIM (.ifc)</h1>
     <p>Proof-Of-Concept App: For å håndtere NVDB-struktur i BIM .ifc-struktur.<br>API=ok, TODO: ca resten:)</p>
     <!--Add to button to save the data.-->
-    <div id="viewDiv"></div>
-    <div id="map" style="height:600px; border:1px solid #000;"></div>
+    <!--<div id="viewDiv"></div>-->
+    <!--<div id="map" style="height:600px; border:1px solid #000;"></div>-->
     <div id="info" style="padding:5px; margin:5px; background-color:#eee;"></div>
     <div id="buttondiv">
         <p><b>Last ned NVDB Property Set Definitions i:</b></p>
@@ -58,18 +58,34 @@
     <script>
 
         // Getting NVDB LES API Status
-        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/status', function (data) {
+        $.getJSON('https://nvdbapiles-v3.atlas.vegvesen.no/status', function (data) {
             var nvdb_status_json = data
             var text = ""
-            text += "Versjon: " + nvdb_status_json.datakatalog.versjon + "<br>"
-            text += "Dato: " + nvdb_status_json.datakatalog.dato + "<br>"
-            text += "Sist oppdatert: " + nvdb_status_json.datagrunnlag.sist_oppdatert + "<br>"
+
+            //Object.keys(data.datagrunnlag)
+
+            let a = Object.keys(data)
+
+            for (let i = 0; i < a.length; i++){
+
+                console.log(a[i])
+
+
+
+            }
+
+            //console.log()
+            console.log(Object.keys(data.datagrunnlag))
+            text += "Versjon: " + data.datagrunnlag.datakatalog.versjon + "<br>"
+            text += "Dato: " + data.datagrunnlag.datakatalog.dato + "<br>"
+            text += "Sist oppdatert: " + data.datagrunnlag.sist_oppdatert + "<br>"
             $(".status").html(text);
         });
 
 
+        /*
         // Getting NVDB LES API Vegobjekttyper 
-        $.getJSON('https://nvdbapiles-v2.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
+        $.getJSON('https://nvdbapiles-v3.atlas.vegvesen.no/vegobjekttyper?inkluder=alle', function (data) {
             var nvdb_vegobjekttyper_json = data
             var text = ""
             for (let i = 0; i < nvdb_vegobjekttyper_json.length; i++) {
@@ -81,6 +97,7 @@
             }
             $(".vegobjekttyper").html(text + "<br>" + JSON.stringify(data[0].egenskapstyper)); //+ JSON.stringify(data));
         });
+        */
 
         let saveFile = () => {
 
