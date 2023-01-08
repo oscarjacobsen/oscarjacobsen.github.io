@@ -77499,7 +77499,7 @@ const customLayer = {
     onAdd: function () {
         const ifcLoader = new IFCLoader();
         ifcLoader.ifcManager.setWasmPath('./');
-        ifcLoader.load('./tunnel.ifc', function (model) {
+        ifcLoader.load('./oscsar-jacobsen-cv-3d.ifc', function (model) {
             scene.add(model);
         });
 
