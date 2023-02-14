@@ -84835,9 +84835,9 @@ function loadMtlObjFile(dirPath, mtlName, objName) {
 }
 
 
-//const objDir = './src/';
-//const mtlName = 'oscar-jacobsen-cv-3d.mtl';
-//const objName = 'oscar-jacobsen-cv-3d.obj';
+const objDir = './src/';
+const mtlName = 'oscar-jacobsen-cv-3d.mtl';
+const objName = 'oscar-jacobsen-cv-3d.obj';
 
 //loadMtlObjFile(objDir, mtlName, objName);
 
@@ -84848,21 +84848,21 @@ function loadMtlObjFile(dirPath, mtlName, objName) {
 
 const ifcMat = new MeshLambertMaterial({
   transparent: true,
-  opacity: 1.,
+  opacity: 0.,
   color: 0xff88ff,
   depthTest: false
 });
 
 function loadIfcFile(ifcURL) {
   ifcLoader.load(ifcURL, (ifcModel) => {
-    //ifcModel.material = ifcMat;
+    ifcModel.material = ifcMat;
     ifcModels.push(ifcModel);
     scene.add(ifcModel);
   });
   return ifcModel;
 }
 const ifcDir = './';
-const ifcName = 'nvdb-datakatalog-v6-0_test.ifc';
+const ifcName = '321.ifc';
 const ifcPath = ifcDir + ifcName;
 
 var ifcModel = null;
