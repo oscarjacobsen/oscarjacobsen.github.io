@@ -77468,7 +77468,7 @@ map.on('load', () => {
 */
 const modelOrigin = [10.5535922, 59.8941638];
 const modelAltitude = 0;
-const modelRotate = [Math.PI / 2, .72, 0];
+const modelRotate = [Math.PI / 2, 0, 0];
 
 const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(modelOrigin, modelAltitude);
 
@@ -77499,7 +77499,7 @@ const customLayer = {
     onAdd: function () {
         const ifcLoader = new IFCLoader();
         ifcLoader.ifcManager.setWasmPath('./');
-        ifcLoader.load('./oscsar-jacobsen-cv-3d.ifc', function (model) {
+        ifcLoader.load('./e18vk-e103_visning.ifc', function (model) {
             scene.add(model);
         });
 
