@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "trimble-connect-project-workspace-api": "^0.1.5"
+  }
+}
