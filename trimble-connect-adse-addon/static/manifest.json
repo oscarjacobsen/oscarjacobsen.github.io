@@ -1,8 +1,0 @@
-{
-    "icon": "http://oscarjacobsen.no/trimble-connect-adse-addon/favicon.png",
-    "title": "ADSE Addon",
-    "url": "http://oscarjacobsen.no/trimble-connect-adse-addon/index.html",
-    "description": "Test extension",
-    "configCommand": "do_config",
-    "enabled": false
-}
