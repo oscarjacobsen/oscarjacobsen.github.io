@@ -1,0 +1,8 @@
+{
+    "icon": "http://oscarjacobsen.no/tc-app-example/favicon.png",
+    "title": "OSCARDOOO",
+    "url": "http://oscarjacobsen.no/tc-app-example/index.png",
+    "description": "JACOBSEEEEN",
+    "configCommand": "do_config",
+    "enabled": true
+  }

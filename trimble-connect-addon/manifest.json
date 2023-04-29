@@ -2,7 +2,7 @@
     "icon": "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
     "title": "OscarJacobsen TC-Addon",
     "url": "http://oscarjacobsen.no/trimble-connect-addon/index.html",
-    "description": "Oscar Jacobsens extentions to Trimble Connect Web",
+    "description": "OscarJacobsens extentions to Trimble Connect Web",
     "configCommand": "do_config",
     "enabled": false,
     "command": "QUADRI_TOP_MENU",
