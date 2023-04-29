@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "three": "^0.152.2",
-    "trimble-connect-project-workspace-api": "^0.1.5",
-    "web-ifc-three": "^0.0.125"
-  },
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "rollup": "^3.21.1"
+    "trimble-connect-project-workspace-api": "^0.1.5"
   }
 }

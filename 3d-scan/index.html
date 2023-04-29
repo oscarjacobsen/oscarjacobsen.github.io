@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIM-CV-3D</title>
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    * {
+      margin: 0;
+      A padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      overflow: hidden;
+    }
+
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      outline: none;
+    }
+
+    #file-input {
+      z-index: 1;
+      position: absolute;
+      content: "Select";
+    }
+
+    #three-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      outline: none;
+    }
+
+    #file-input {
+      z-index: 1;
+      position: absolute;
+    }
+
+    .message-container {
+      z-index: 1;
+      position: absolute;
+      margin: 16px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 10px;
+      overflow: auto;
+      width: 33vw;
+      height: 100vh;
+    }
+
+    .message {
+      display: inline;
+      color: black;
+    }
+
+    .message2 {
+      display: inline;
+      color: black;
+      font-size: 10px;
+    }
+
+    .loader {
+      border-top: 16px solid blue;
+      border-bottom: 16px solid blue;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <input type="file" name="load" id="file-input" accept=".ifc"> </br>
+  <div class="message-container">
+    <div style="float:left;"><a href="./index.html" target="_blank">Åpne</a></div>
+    <div style="text-align:right;"><a href="./oscar-jacobsen-cv-3d.ifc" download="oscar-jacobsen-cv-3d.ifc">Last ned BIM
+        .IFC</a></div>
+
+    <p class="message">Egenskapssett:</p>
+    <pre class="message2" id="id-output"></pre>
+  </div>
+  <canvas id="three-canvas"></canvas>
+  <script src="./src/bundle.js"></script>
+</body>
+
+</html>
