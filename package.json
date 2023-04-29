@@ -1,5 +1,16 @@
 {
+  "name": "oscarjacobsen",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "trimble-connect-project-workspace-api": "^0.1.5"
+    "three": "^0.152.2"
+  },
+  "scripts": {
+    "build": "rollup -c ./rollup.config.js",
+    "watch": "rollup -w -c ./rollup.config.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "rollup": "^2.79.1"
   }
 }
