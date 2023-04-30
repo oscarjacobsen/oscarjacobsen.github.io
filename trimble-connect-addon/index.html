@@ -40,12 +40,15 @@
 
         
 
-        const API = dotConnect().then(
-            console.log(TrimbleConnectWorkspace.connect)
-        )
+        dotConnect().then((API) => {
 
-        console.log(API)
-        console.log(API.ui)
+            // Printing project info
+            API.project.getCurrentProject().then((projectInfo) => {
+                console.log(projectInfo)
+            })
+
+            console.log(300396)
+        })
 
         console.log(22)
 
