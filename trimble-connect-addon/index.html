@@ -9,13 +9,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Web site created using create-react-app">
-    <script src="https://components.connect.trimble.com/trimble-connect-workspace-api/index.js"></script>
+    <script src="https://components.connect.trimble.com/trimble-connect-workspace-WorkspaceAPI/index.js"></script>
 </head>
 
 <body>
     <h1>OscarJacobsen - TC-addon</h1>
+    <h2>Project Information</h2>
     <div id="project-info"></div>
+    <h2>Extention Access-Token</h2>
     <div id="access-token"></div>
+    <h2>User</h2>
+    <div id="connect-user"></div>
 
     <script>
 
@@ -60,13 +64,13 @@
 
 
 
-        dotConnect().then((API) => {
+        dotConnect().then((WorkspaceAPI) => {
 
             // Setting ui menu
-            API.ui.setMenu(mainMenuObject)
+            WorkspaceAPI.ui.setMenu(mainMenuObject)
 
             // Printing project info
-            API.project.getCurrentProject().then((projectInfo) => {
+            WorkspaceAPI.project.getCurrentProject().then((projectInfo) => {
 
                 var pro = document.getElementById("project-info")
                 pro.innerHTML = JSON.stringify(projectInfo)
@@ -74,13 +78,17 @@
             })
 
             // Getting 
-            API.extension.getPermission("accesstoken").then((accessToken) => {
+            WorkspaceAPI.extension.getPermission("accesstoken").then((accessToken) => {
                 //Current user access token or status: accessToken
                 var token = document.getElementById("access-token")
                 token.innerHTML = JSON.stringify(accessToken)
                 console.log(accessToken)
 
             });
+
+            WorkspaceAPI.user.getUser().then((connectUser)=>{
+                document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
+            })
 
             console.log(300396)
         })
