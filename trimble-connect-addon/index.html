@@ -13,8 +13,9 @@
 </head>
 
 <body>
-    <h1>OscarJacobsen - TC-addon</h1>
-    <button onclick="myFunction()">Click me</button>
+    <h1>OJ - TC-addon</h1>
+    <input type="text" id="change">
+    <!--<button onclick="setViewerTransparency()">Click me</button>-->
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -65,11 +66,14 @@
             );
         }
 
-        function myFunction(){
+        // Changing opacity when changed
+        document.getElementById("change").addEventListener("input", function setViewerTransparency(opacity){
             dotConnect().then((WorkspaceAPI) => {
-                return WorkspaceAPI.viewer.setOpacity(50)
-            })}
+                return WorkspaceAPI.viewer.setOpacity(parseInt(opacity))
+            })})
 
+
+        
 
 
         dotConnect().then((WorkspaceAPI) => {
