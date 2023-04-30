@@ -742,7 +742,7 @@
               }),
               (c.state = {
                 mainMenu: {
-                  title: "Min Fantastico app",
+                  title: "OJ TC-Addon",
                   icon: M,
                   command: "main_nav_menu_cliked",
                 },

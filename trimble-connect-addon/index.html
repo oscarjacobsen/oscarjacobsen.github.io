@@ -16,8 +16,31 @@
     <h1>OscarJacobsen - TC-addon</h1>
 
     <script>
-        var API = TrimbleConnectWorkspace.connect
 
+        async function apiConnect(){
+            return await WorkspaceAPI.connect(
+            window.parent,
+            (event, args) => {
+                switch (event) {
+                    case "extension.command":
+                        //"Command executed by the user: args.data"
+                        break;
+                    case "extension.accessToken":
+                        //"Accestoken or status: args.data"
+                        break;
+                    case "extension.userSettingsChanged":
+                        //"User settings changed!"
+                        break;
+                    default:
+                }
+            },
+            30000
+        );
+        }
+
+        const API = apiConnect().then(
+            document.write(67)
+        )
 
         document.write(5 + 6)
     </script>
