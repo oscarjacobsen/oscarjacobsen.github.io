@@ -7,7 +7,8 @@ import * as Extensions from "trimble-connect-project-workspace-api";
    *  @param timeout - Connect timeout in milliseconds.
    *  @returns TCExtensionAPI - Object with the interaction methods.
 */
-this.API = await Extensions.connect(
+
+const API = await Extensions.connect(
   window.parent,
   (event, args) => {
     switch (event) {
@@ -26,28 +27,45 @@ this.API = await Extensions.connect(
   30000
 );
 
+const mainMenuObject = {
+    title: "Test extension app",
+    icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+    command: "main_nav_menu_cliked",
+    subMenus: [
+      {
+        title: "Sub menu 1",
+        icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+        command: "submenu_1_clicked",
+      },
+      {
+        title: "Sub menu 2",
+        icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+        command: "submenu_2_clicked",
+      },
+    ],
+  };
 
 // Updating the menu object.
-this.API.ui.setMenu("<mainMenuObject>:ExtensionMainMenu")
+var menu = API.ui.setMenu(mainMenuObject)
 // Where <mainMenuObject> is the menu object and ExtensionMainMenu is the object type which you can find it in the documentation.
 
 // Updating the active submenu.
-this.API.ui.setActiveMenuItem("<submenuCommand>:string");
+//API.ui.setActiveMenuItem("<submenuCommand>:string");
 
 // Get the current project info
-this.API.project.getCurrentProject().then((connectProject) => {
+//API.project.getCurrentProject().then((connectProject) => {
     //Current project info: projectInfo.
-});
+//});
 
 //Get the current user language info.
-this.API.user.getUserSettings().then((userSettings) => {
+//API.user.getUserSettings().then((userSettings) => {
     //Current user language: userSettings.language
-});
+//});
 
 //Updating the status message.
-this.API.extension.setStatusMessage("<statusMessage>:string");
+//this.API.extension.setStatusMessage("<statusMessage>:string");
 
 //Request for the access token.
-this.API.extension.getPermission("accesstoken").then((accessToken) => {
+//API.extension.getPermission("accesstoken").then((accessToken) => {
     //Current user access token or status: accessToken
-});
+//});

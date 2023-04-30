@@ -6,35 +6,53 @@ const e="Trimble.dispatcher.v1",t={},n={};let o=1;function r(e){const t=l();retu
    *  @param timeout - Connect timeout in milliseconds.
    *  @returns TCExtensionAPI - Object with the interaction methods.
 */
-undefined.API = await w(
+let API;
+API = await w(
   window.parent,
   (event, args) => {
   },
   30000
 );
 
+const mainMenuObject = {
+    title: "Test extension app",
+    icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+    command: "main_nav_menu_cliked",
+    subMenus: [
+      {
+        title: "Sub menu 1",
+        icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+        command: "submenu_1_clicked",
+      },
+      {
+        title: "Sub menu 2",
+        icon: "http://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+        command: "submenu_2_clicked",
+      },
+    ],
+  };
 
 // Updating the menu object.
-undefined.API.ui.setMenu("<mainMenuObject>:ExtensionMainMenu");
+API.ui.setMenu(mainMenuObject);
 // Where <mainMenuObject> is the menu object and ExtensionMainMenu is the object type which you can find it in the documentation.
 
 // Updating the active submenu.
-undefined.API.ui.setActiveMenuItem("<submenuCommand>:string");
+//API.ui.setActiveMenuItem("<submenuCommand>:string");
 
 // Get the current project info
-undefined.API.project.getCurrentProject().then((connectProject) => {
+//API.project.getCurrentProject().then((connectProject) => {
     //Current project info: projectInfo.
-});
+//});
 
 //Get the current user language info.
-undefined.API.user.getUserSettings().then((userSettings) => {
+//API.user.getUserSettings().then((userSettings) => {
     //Current user language: userSettings.language
-});
+//});
 
 //Updating the status message.
-undefined.API.extension.setStatusMessage("<statusMessage>:string");
+//this.API.extension.setStatusMessage("<statusMessage>:string");
 
 //Request for the access token.
-undefined.API.extension.getPermission("accesstoken").then((accessToken) => {
+//API.extension.getPermission("accesstoken").then((accessToken) => {
     //Current user access token or status: accessToken
-});
+//});
