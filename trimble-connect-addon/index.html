@@ -16,7 +16,41 @@
     <h1>OscarJacobsen - TC-addon</h1>
 
     <script>
-        document.write(5 + 6)
+
+            async function dotConnect() {
+                return await TrimbleConnectWorkspace.connect(
+                    window.parent,
+                    (event, args) => {
+                        switch (event) {
+                            case "extension.command":
+                                //"Command executed by the user: args.data"
+                                break;
+                            case "extension.accessToken":
+                                //"Accestoken or status: args.data"
+                                break;
+                            case "extension.userSettingsChanged":
+                                //"User settings changed!"
+                                break;
+                            default:
+                        }
+                    },
+                    30000
+                );
+        }
+
+        
+
+        const API = dotConnect().then(
+            console.log(TrimbleConnectWorkspace.connect)
+        )
+
+        console.log(API)
+        console.log(API.ui)
+
+        console.log(22)
+
+        
+
     </script>
 
     <!--<script type="module" src="./bundle.js"></script>-->

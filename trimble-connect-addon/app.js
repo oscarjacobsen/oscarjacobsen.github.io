@@ -1,4 +1,7 @@
 import * as Extensions from "trimble-connect-project-workspace-api";
+import {TrimbleConnectWorkspace} from "./index.js"
+
+
 
 
 /** Instantiate extension .
@@ -26,6 +29,7 @@ const API = await Extensions.connect(
   },
   30000
 );
+
 
 const mainMenuObject = {
     title: "Test extension app",
