@@ -14,8 +14,8 @@
 
 <body>
     <h1>OJ - TC-addon</h1>
-    <input type="text" id="change">
-    <!--<button onclick="setViewerTransparency()">Click me</button>-->
+    <!--<input type="text" id="change">-->
+    <button onclick="setViewerTransparency()">Click me</button>
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -66,14 +66,11 @@
             );
         }
 
-        // Changing opacity when changed
-        document.getElementById("change").addEventListener("input", function setViewerTransparency(opacity){
+        function setViewerTransparency(opacity){
             dotConnect().then((WorkspaceAPI) => {
-                return WorkspaceAPI.viewer.setOpacity(parseInt(opacity))
-            })})
+                return WorkspaceAPI.viewer.setOpacity(50)
+            })}
 
-
-        
 
 
         dotConnect().then((WorkspaceAPI) => {
