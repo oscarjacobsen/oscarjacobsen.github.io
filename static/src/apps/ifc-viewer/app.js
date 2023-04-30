@@ -1,26 +1,70 @@
-import * as THREE from 'three';
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+///////////////////////
+// Setup static html //
+///////////////////////
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+document.title = "HELLOOO"
 
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+// Setting favicon
+function setFavicons(favImg){
+    let headTitle = document.querySelector('head');
+    let setFavicon = document.createElement('link');
+    setFavicon.setAttribute('rel','shortcut icon');
+    setFavicon.setAttribute('href',favImg);
+    headTitle.appendChild(setFavicon);
+}
+setFavicons('../static/images/favicon.png');
 
-camera.position.z = 5;
+// Select the div element with 'app' id
+const app = document.getElementById('app');
 
-function animate() {
-	requestAnimationFrame( animate );
+// Adding input field
+var input = document.createElement("input")
+input.type = "file"
+input.accept = ".ifc"
+input.className = "css-class-name"; //Set css class
+app.appendChild(input); //
 
-	cube.rotation.x += 0.01;
-	cube.rotation.y += 0.01;
+// Create a new H1 element
+const header = document.createElement('h1');
 
-	renderer.render( scene, camera );
+// Create a new text node for the H1 element
+const headerContent = document.createTextNode(
+  'Develop. Preview. Ship. 🚀',
+);
+
+// Append the text to the H1 element
+header.appendChild(headerContent);
+
+// Place the H1 element inside the div
+app.appendChild(header);
+
+
+import { Color } from 'three';
+import { IfcViewerAPI } from 'web-ifc-viewer';
+
+const container = document.getElementById('viewer-container');
+const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
+// viewer.grid.setGrid();
+// viewer.axes.setAxes();
+
+async function loadIfc(url) {
+    await viewer.IFC.setWasmPath("./");
+    const model = await viewer.IFC.loadIfcUrl(url);
+    viewer.shadowDropper.renderShadow(model.modelID);
 }
 
-animate();
+loadIfc('Bolig-Røyksundvegen.ifc');
+
+window.ondblclick = () => viewer.IFC.selector.pickIfcItem(true);
+window.onmousemove = () => viewer.IFC.selector.prePickIfcItem();
+viewer.clipper.active = true;
+
+window.onkeydown = (event) => {
+    if(event.code === 'KeyP') {
+        viewer.clipper.createPlane();
+    }
+    else if(event.code === 'KeyO') {
+        viewer.clipper.deletePlane();
+    }
+}

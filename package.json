@@ -5,12 +5,19 @@
   "private": true,
   "dependencies": {
     "gh-pages": "^5.0.0",
-    "three": "^0.152.2"
+    "i": "^0.3.7",
+    "npm": "^9.6.5",
+    "react-scripts": "^5.0.1",
+    "three": "^0.152.2",
+    "trimble-connect-project-workspace-api": "^0.1.5",
+    "trimble-connect-workspace-api": "^0.1.9"
   },
   "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "build": "rollup -c ./rollup.config.js",
+    "bundle": "rollup -c ./rollup.config.js",
     "watch": "rollup -w -c ./rollup.config.js"
   },
   "devDependencies": {

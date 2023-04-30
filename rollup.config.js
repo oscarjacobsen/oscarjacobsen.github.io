@@ -2,19 +2,19 @@ import resolve from "@rollup/plugin-node-resolve";
 
 export default [
   {
-    input: "./static/src/apps/ifc-viewer/app.js",
+    input: "./ifc-viewer/app.js",
     output: {
-      file: "./static/src/apps/ifc-viewer/bundle.js",
+      file: "./ifc-viewer/bundle.js",
+      format: "esm",
+    },
+    plugins: [resolve()],
+  },
+  {
+    input: "./trimble-connect-addon/app.js",
+    output: {
+      file: "./trimble-connect-addon/bundle.js",
       format: "esm",
     },
     plugins: [resolve()],
   }
-  //{
-  //  input: "./static/src/apps/home/app.js",
-  //  output: {
-  //    file: "./static/src/apps/home/bundle.js",
-  //    format: "esm",
-  //  },
-  //  plugins: [resolve()],
-  //},
 ];
