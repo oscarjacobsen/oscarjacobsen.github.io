@@ -14,6 +14,7 @@
 
 <body>
     <h1>OscarJacobsen - TC-addon</h1>
+    <button onclick="myFunction()">Click me</button>
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -22,6 +23,8 @@
     <div id="connect-user"></div>
 
     <script>
+
+        
 
         const mainMenuObject = {
             title: "OJ - TC-Addon",
@@ -62,6 +65,11 @@
             );
         }
 
+        function myFunction(){
+            dotConnect().then((WorkspaceAPI) => {
+                return WorkspaceAPI.viewer.setOpacity(50)
+            })}
+
 
 
         dotConnect().then((WorkspaceAPI) => {
@@ -87,6 +95,10 @@
             });
 
             WorkspaceAPI.user.getUser().then((connectUser)=>{
+                document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
+            })
+
+            WorkspaceAPI.extension.getUser().then((connectUser)=>{
                 document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
             })
 
