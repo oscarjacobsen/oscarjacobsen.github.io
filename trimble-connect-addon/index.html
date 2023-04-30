@@ -2,13 +2,13 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>OJ - TC-Addon</title>
     <link rel="icon" href="./favicon.png">
+    <link rel="apple-touch-icon" href="./favicon.png">
+    <link rel="manifest" href="./manifest.json">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Web site created using create-react-app">
-    <link rel="apple-touch-icon" href="./favicon.png">
-    <link rel="manifest" href="./manifest.json">
-    <title>OJ - TC-Addon</title>
     <script src="https://components.connect.trimble.com/trimble-connect-workspace-api/index.js"></script>
 </head>
 
@@ -16,32 +16,6 @@
     <h1>OscarJacobsen - TC-addon</h1>
 
     <script>
-
-        async function apiConnect(){
-            return await WorkspaceAPI.connect(
-            window.parent,
-            (event, args) => {
-                switch (event) {
-                    case "extension.command":
-                        //"Command executed by the user: args.data"
-                        break;
-                    case "extension.accessToken":
-                        //"Accestoken or status: args.data"
-                        break;
-                    case "extension.userSettingsChanged":
-                        //"User settings changed!"
-                        break;
-                    default:
-                }
-            },
-            30000
-        );
-        }
-
-        const API = apiConnect().then(
-            document.write(67)
-        )
-
         document.write(5 + 6)
     </script>
 
