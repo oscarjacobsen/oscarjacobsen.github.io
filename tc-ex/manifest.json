@@ -1,6 +1,6 @@
 {
     "icon": "https://oscarjacobsen.no/tc-ex/favicon.png",
-    "title": "UWA Project Extension",
+    "title": "OscarJacobsen UWS",
     "url": "https://oscarjacobsen.no/tc-ex/index.html",
     "description": "UWA project extension react example app",
     "configCommand": "do_config",
