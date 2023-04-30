@@ -18,46 +18,46 @@
 
     <script>
 
-    const mainMenuObject = {
-        title: "Test extension app",
-        icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-        command: "main_nav_menu_cliked",
-        subMenus: [
-            {
-                title: "Sub menu 1",
-                icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-                command: "submenu_1_clicked",
-            },
-            {
-                title: "Sub menu 2",
-                icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-                command: "submenu_2_clicked",
-            },
-        ],
-    };
+        const mainMenuObject = {
+            title: "OJ - TC-Addon",
+            icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+            command: "main_nav_menu_cliked",
+            subMenus: [
+                {
+                    title: "Sub menu 1",
+                    icon: "https://oscarjacobsen.no/trimble-connect-addon/submenu_1.png",
+                    command: "submenu_1_clicked",
+                },
+                {
+                    title: "Sub menu 2",
+                    icon: "https://oscarjacobsen.no/trimble-connect-addon/submenu_2.png",
+                    command: "submenu_2_clicked",
+                },
+            ],
+        };
 
-            async function dotConnect() {
-                return await TrimbleConnectWorkspace.connect(
-                    window.parent,
-                    (event, args) => {
-                        switch (event) {
-                            case "extension.command":
-                                //"Command executed by the user: args.data"
-                                break;
-                            case "extension.accessToken":
-                                //"Accestoken or status: args.data"
-                                break;
-                            case "extension.userSettingsChanged":
-                                //"User settings changed!"
-                                break;
-                            default:
-                        }
-                    },
-                    30000
-                );
+        async function dotConnect() {
+            return await TrimbleConnectWorkspace.connect(
+                window.parent,
+                (event, args) => {
+                    switch (event) {
+                        case "extension.command":
+                            //"Command executed by the user: args.data"
+                            break;
+                        case "extension.accessToken":
+                            //"Accestoken or status: args.data"
+                            break;
+                        case "extension.userSettingsChanged":
+                            //"User settings changed!"
+                            break;
+                        default:
+                    }
+                },
+                30000
+            );
         }
 
-        
+
 
         dotConnect().then((API) => {
 
@@ -77,7 +77,7 @@
 
         console.log(22)
 
-        
+
 
     </script>
 
