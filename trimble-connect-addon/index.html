@@ -14,8 +14,27 @@
 
 <body>
     <h1>OscarJacobsen - TC-addon</h1>
+    <div id="project-info"></div>
 
     <script>
+
+    const mainMenuObject = {
+        title: "Test extension app",
+        icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+        command: "main_nav_menu_cliked",
+        subMenus: [
+            {
+                title: "Sub menu 1",
+                icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+                command: "submenu_1_clicked",
+            },
+            {
+                title: "Sub menu 2",
+                icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+                command: "submenu_2_clicked",
+            },
+        ],
+    };
 
             async function dotConnect() {
                 return await TrimbleConnectWorkspace.connect(
@@ -42,8 +61,14 @@
 
         dotConnect().then((API) => {
 
+            // Setting ui menu
+            API.ui.setMenu(mainMenuObject)
+
             // Printing project info
             API.project.getCurrentProject().then((projectInfo) => {
+
+                var pro = document.getElementById("project-info")
+                pro.innerHTML = JSON.stringify(obj)
                 console.log(projectInfo)
             })
 
