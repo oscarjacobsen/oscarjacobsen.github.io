@@ -742,13 +742,13 @@
               }),
               (c.state = {
                 mainMenu: {
-                  title: "Test React app",
+                  title: "Min Fantastico app",
                   icon: M,
                   command: "main_nav_menu_cliked",
                 },
                 subMenuItems: [
-                  { title: "Extension API", icon: M, command: o.extension },
-                  { title: "Embed API", icon: M, command: o.embed },
+                  { title: "Oscar API", icon: M, command: o.extension },
+                  { title: "Jacobsen API", icon: M, command: o.embed },
                 ],
                 accessToken: "",
               }),
