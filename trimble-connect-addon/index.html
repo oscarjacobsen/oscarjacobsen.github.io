@@ -68,7 +68,7 @@
             API.project.getCurrentProject().then((projectInfo) => {
 
                 var pro = document.getElementById("project-info")
-                pro.innerHTML = JSON.stringify(obj)
+                pro.innerHTML = JSON.stringify(projectInfo)
                 console.log(projectInfo)
             })
 
