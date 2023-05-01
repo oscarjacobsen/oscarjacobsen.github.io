@@ -75,12 +75,19 @@
 
         function getViewerModels() {
             dotConnect().then((WorkspaceAPI) => {
-                WorkspaceAPI.viewer.getModels("loaded").then((modelSpec) => {
-                    console.log(modelSpec)
-                    var elemDiv = document.createElement('div');
-                    elemDiv.id = "model"
-                    elemDiv.innerHTML = modelSpec.name
-                    document.body.appendChild(elemDiv);
+                WorkspaceAPI.viewer.getModels("loaded").then((modelSpecs) => {
+                    
+                    for (let i = 0; i < modelSpecs; i++){
+
+                        console.log(modelSpecs[i])
+                        var elemDiv = document.createElement('div');
+                        elemDiv.id = "model"
+                        elemDiv.innerHTML = modelSpecs[i].name
+                        document.body.appendChild(elemDiv);
+
+                    }
+                    
+                    
                 })
             })
         }
