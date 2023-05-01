@@ -48,6 +48,46 @@
             ],
         };
 
+        function setViewerTransparency() {
+            return WorkspaceAPI.viewer.setOpacity(50)
+        }
+
+        WorkspaceAPI = TrimbleConnectWorkspace.connect(
+                window.parent,
+                (event, args) => {
+                    switch (event) {
+                        case "extension.command":
+                            //"Command executed by the user: args.data"
+
+                            if (args[0] == "submenu_1_clicked"){
+                                console.log("BUTTON1 PUSHED")
+                            }
+
+                            break;
+                        case "extension.accessToken":
+                            //"Accestoken or status: args.data"
+                            break;
+                        case "extension.userSettingsChanged":
+                            //"User settings changed!"
+                            break;
+                        default:
+                    }
+                },
+                30000
+            ).then((WorkspaceAPI)=>{
+
+                WorkspaceAPI.ui.setMenu(mainMenuObject)
+
+
+
+
+
+
+
+            })
+
+        /*
+
         async function dotConnect() {
             return await TrimbleConnectWorkspace.connect(
                 window.parent,
@@ -206,7 +246,7 @@
                             }
 
                         }
-                        */
+                        
 
                     }
 
@@ -215,6 +255,8 @@
             })
             return ""
         }
+
+        
 
 
 
@@ -252,6 +294,8 @@
         })
 
         console.log(22)
+
+        */
 
 
 
