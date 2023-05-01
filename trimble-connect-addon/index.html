@@ -17,6 +17,7 @@
     <!--<input type="text" id="change">-->
     <button onclick="setViewerTransparency()">Opacity 50%</button>
     <button onclick="getViewerModels()">ViewerModels</button>
+    <button onclick="removeSectionPlanes()">removeSectionPlanes</button>
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -73,7 +74,14 @@
             })
         }
 
+        function removeSectionPlanes(){
+            dotConnect().then((WorkspaceAPI)=>{
+                return WorkspaceAPI.viewer.removeSectionPlanes()
+            })
+        }
+
         function getViewerModels() {
+            console.log("RUN VIEWER MODELS")
             dotConnect().then((WorkspaceAPI) => {
                 WorkspaceAPI.viewer.getModels("loaded").then((modelSpecs) => {
                     
@@ -92,6 +100,7 @@
                     
                 })
             })
+            return ""
         }
 
 
