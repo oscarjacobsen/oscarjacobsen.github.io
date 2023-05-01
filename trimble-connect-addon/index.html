@@ -103,6 +103,14 @@
                 document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
             })
 
+            // Getting models
+            WorkspaceAPI.viewer.getModels("loaded").then((modelSpec)=>{
+                console.log(modelSpec)
+                document.getElementById("models").innerHTML = modelSpec.name
+            })
+
+            })
+
             console.log(300396)
         })
 
