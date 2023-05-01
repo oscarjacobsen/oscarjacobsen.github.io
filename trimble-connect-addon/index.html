@@ -75,8 +75,8 @@
             })
         }
 
-        function removeSectionPlanes(){
-            dotConnect().then((WorkspaceAPI)=>{
+        function removeSectionPlanes() {
+            dotConnect().then((WorkspaceAPI) => {
                 return WorkspaceAPI.viewer.removeSectionPlanes()
             })
         }
@@ -85,10 +85,10 @@
             console.log("RUN VIEWER MODELS")
             dotConnect().then((WorkspaceAPI) => {
                 WorkspaceAPI.viewer.getModels("loaded").then((modelSpecs) => {
-                    
+
                     console.log(modelSpecs)
-                    
-                    for (let i = 0; i < modelSpecs.length; i++){
+
+                    for (let i = 0; i < modelSpecs.length; i++) {
 
                         var model = modelSpecs[i]
                         var modelId = model.id
@@ -97,14 +97,19 @@
                         console.log(modelId)
                         console.log(modelName)
                     }
-                    
-                    
-                })
-            
-                WorkspaceAPI.viewer.getObjects().then((modelObjects)=>{
-                    console.log(modelObjects)
 
-                    modelObjects.objects.then((modelObjectsObjects)=>{
+
+                })
+
+                WorkspaceAPI.viewer.getObjects().then((modelObjects) => {
+                    
+                    console.log(modelObjects)
+                    modelObjects.objects.forEach((mObject) => {
+                        console.log(mObject);
+                        console.log(mObject.class)
+                    });
+
+                    modelObjects.objects.then((modelObjectsObjects) => {
                         console.log("LEEENGTH")
                         console.log(modelObjectsObjects)
                         console.log(modelObjectsObjects.length)
@@ -116,19 +121,19 @@
             return ""
         }
 
-        function getObjects(){
+        function getObjects() {
             console.log("RUN GET OBJECTS")
 
-            dotConnect().then((WorkspaceAPI)=>{
+            dotConnect().then((WorkspaceAPI) => {
 
-                WorkspaceAPI.viewer.getObjects().then((modelObjects)=>{
+                WorkspaceAPI.viewer.getObjects().then((modelObjects) => {
 
-                    for (let a = 0; a < modelObjects.length; a++){
+                    for (let a = 0; a < modelObjects.length; a++) {
 
                         var modelObject = modelObjects[a]
                         var modelId = modelObject.modelId
 
-                        
+
 
                         var modelObjectsObjects = modelObject.objects
 
