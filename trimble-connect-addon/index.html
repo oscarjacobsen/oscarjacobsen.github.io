@@ -106,7 +106,10 @@
             // Getting models
             WorkspaceAPI.viewer.getModels("loaded").then((modelSpec)=>{
                 console.log(modelSpec)
-                document.getElementById("models").innerHTML = modelSpec.name
+                var elemDiv = document.createElement('div');
+                elemDiv.id = "model"
+                elemDiv.innerHTML = modelSpec.name
+                document.body.appendChild(elemDiv);
             })
 
             })
