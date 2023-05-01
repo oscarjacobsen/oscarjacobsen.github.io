@@ -77,6 +77,8 @@
             dotConnect().then((WorkspaceAPI) => {
                 WorkspaceAPI.viewer.getModels("loaded").then((modelSpecs) => {
                     
+                    console.log(modelSpecs)
+                    
                     for (let i = 0; i < modelSpecs; i++){
 
                         console.log(modelSpecs[i])
