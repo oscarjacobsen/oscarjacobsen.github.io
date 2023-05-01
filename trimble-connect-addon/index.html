@@ -104,16 +104,15 @@
                 WorkspaceAPI.viewer.getObjects().then((modelObjects) => {
                     
                     console.log(modelObjects)
-                    modelObjects.objects.forEach((mObject) => {
-                        console.log(mObject);
-                        console.log(mObject.class)
-                    });
+                    
+                    for (let a = 0; a < modelObjects.length; a++){
 
-                    modelObjects.objects.then((modelObjectsObjects) => {
-                        console.log("LEEENGTH")
-                        console.log(modelObjectsObjects)
-                        console.log(modelObjectsObjects.length)
-                    })
+                        var modelID = modelObjects[a].modelId
+
+                        console.log(modelObjects[a].objects)
+                    }
+
+
                 })
             })
 
