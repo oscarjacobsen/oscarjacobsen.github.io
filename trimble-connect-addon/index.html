@@ -119,15 +119,18 @@
 
                     for (let a = 0; a < modelObjects.length; a++){
 
-                        var modelId = modelObjects[a].modelId
-                        var modelObjects = modelObjects[a].objects
+                        var modelObject = modelObjects[a]
+                        var modelId = modelObject.modelId
+                        var modelObjectsObjects = modelObject.objects
 
-                        for (let b = 0; b < modelObjects.length; b++){
+                        console.log("MODEL ID = " + modelId)
 
-                            var objectClass = modelObjects[b].class
-                            var objectId = modelObjects[b].id
-                            var objectColor = modelObjects[b].color
-                            var objectProperties = modelObjects[b].properties
+                        for (let b = 0; b < modelObjectsObjects.length; b++){
+
+                            var objectClass = modelObjectsObjects[b].class
+                            var objectId = modelObjectsObjects[b].id
+                            var objectColor = modelObjectsObjects[b].color
+                            var objectProperties = modelObjectsObjects[b].properties
 
                             for (let c = 0; c < objectProperties.length; c++){
 
