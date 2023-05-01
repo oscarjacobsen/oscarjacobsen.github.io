@@ -48,9 +48,7 @@
             ],
         };
 
-        function setViewerTransparency() {
-            return WorkspaceAPI.viewer.setOpacity(50)
-        }
+        
 
         WorkspaceAPI = TrimbleConnectWorkspace.connect(
                 window.parent,
@@ -76,7 +74,7 @@
                 30000
             ).then((WorkspaceAPI)=>{
 
-                WorkspaceAPI.ui.setMenu(mainMenuObject)
+                //WorkspaceAPI.ui.setMenu(mainMenuObject)
 
 
 
@@ -85,6 +83,10 @@
 
 
             })
+
+        function setViewerTransparency() {
+            return WorkspaceAPI.viewer.setOpacity(50)
+        }
 
         /*
 
