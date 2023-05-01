@@ -48,34 +48,14 @@
             ],
         };
 
-        TrimbleConnectWorkspace.connect(
+        
+
+        WorkspaceAPI = TrimbleConnectWorkspace.connect(
                 window.parent,
                 (event, args) => {
-                    switch (event) {
-                        case "extension.command":
-                            //"Command executed by the user: args.data"
-                            break;
-                        case "extension.accessToken":
-                            //"Accestoken or status: args.data"
-                            break;
-                        case "extension.userSettingsChanged":
-                            //"User settings changed!"
-                            break;
-                        default:
-                    }
-                },
-                30000
-            ).then((WorkspaceAPI)=>{
-
-
-
-            })
-
-        <!---->
-
-        TrimbleConnectWorkspace.connect(
-                window.parent,
-                (event, args) => {
+                    console.log("SOMETHING")
+                    console.log(event)
+                    console.log(args)
                     switch (event) {
                         case "extension.command":
                             //"Command executed by the user: args.data"
@@ -99,7 +79,15 @@
                     }
                 },
                 30000
-            );
+            ).then((WorkspaceAPI)=>{
+                WorkspaceAPI.ui.setMenu(mainMenuObject)
+            })
+
+        function setViewerTransparency() {
+            return WorkspaceAPI.viewer.setOpacity(50)
+        }
+
+        /*
 
         async function dotConnect() {
             return await TrimbleConnectWorkspace.connect(
@@ -259,7 +247,7 @@
                             }
 
                         }
-                        */
+                        
 
                     }
 
@@ -268,6 +256,8 @@
             })
             return ""
         }
+
+        
 
 
 
@@ -305,6 +295,8 @@
         })
 
         console.log(22)
+
+        */
 
 
 
