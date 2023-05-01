@@ -19,6 +19,7 @@
     <button onclick="getViewerModels()">ViewerModels</button>
     <button onclick="removeSectionPlanes()">removeSectionPlanes</button>
     <button onclick="getObjects()">consoleGetObjects</button>
+    <button onclick="getSelectionData()">consoleSelectionData</button>
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -134,6 +135,17 @@
             })
         }
 
+        function getSelectionData(){
+            dotConnect().then((WorkspaceAPI)=>{
+                WorkspaceAPI.viewer.getSelection().then((selectionObjects)=>{
+                    console.log("RUN SELECTION OBJECTS")
+
+                    console.log(selectionObjects)
+
+                })
+            })
+        }
+
         function getViewerModels() {
             console.log("RUN VIEWER MODELS")
             dotConnect().then((WorkspaceAPI) => {
@@ -171,6 +183,8 @@
                             var objectClass = modelObject.class
                             var objectId = modelObject.id
                             var objectColor = modelObject.color
+
+                            WorkspaceAPI.viewer.getObjectProperties(modelID, [objectID])
                             var objectProperties = modelObject.properties
 
                             console.log("- " + objectId + "_" + objectClass + "_" + objectColor)
