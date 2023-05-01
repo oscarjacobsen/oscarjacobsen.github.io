@@ -16,6 +16,7 @@
     <h1>OJ - TC-addon</h1>
     <!--<input type="text" id="change">-->
     <button onclick="setViewerTransparency()">Opacity 50%</button>
+    <button onclick="getViewerModels()">ViewerModels</button>
     <h2>Project Information</h2>
     <div id="project-info"></div>
     <h2>Extention Access-Token</h2>
@@ -25,7 +26,7 @@
 
     <script>
 
-        
+
 
         const mainMenuObject = {
             title: "OJ - TC-Addon",
@@ -66,10 +67,23 @@
             );
         }
 
-        function setViewerTransparency(opacity){
+        function setViewerTransparency(opacity) {
             dotConnect().then((WorkspaceAPI) => {
                 return WorkspaceAPI.viewer.setOpacity(50)
-            })}
+            })
+        }
+
+        function getViewerModels() {
+            dotConnect().then((WorkspaceAPI) => {
+                WorkspaceAPI.viewer.getModels("loaded").then((modelSpec) => {
+                    console.log(modelSpec)
+                    var elemDiv = document.createElement('div');
+                    elemDiv.id = "model"
+                    elemDiv.innerHTML = modelSpec.name
+                    document.body.appendChild(elemDiv);
+                })
+            })
+        }
 
 
 
@@ -95,23 +109,12 @@
 
             });
 
-            WorkspaceAPI.user.getUser().then((connectUser)=>{
+            WorkspaceAPI.user.getUser().then((connectUser) => {
                 document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
             })
 
-            WorkspaceAPI.extension.getUser().then((connectUser)=>{
+            WorkspaceAPI.extension.getUser().then((connectUser) => {
                 document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
-            })
-
-            // Getting models
-            WorkspaceAPI.viewer.getModels("loaded").then((modelSpec)=>{
-                console.log(modelSpec)
-                var elemDiv = document.createElement('div');
-                elemDiv.id = "model"
-                elemDiv.innerHTML = modelSpec.name
-                document.body.appendChild(elemDiv);
-            })
-
             })
 
             console.log(300396)
