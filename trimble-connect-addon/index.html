@@ -53,6 +53,9 @@
         WorkspaceAPI = TrimbleConnectWorkspace.connect(
                 window.parent,
                 (event, args) => {
+                    console.log("SOMETHING")
+                    console.log(event)
+                    console.log(args)
                     switch (event) {
                         case "extension.command":
                             //"Command executed by the user: args.data"
