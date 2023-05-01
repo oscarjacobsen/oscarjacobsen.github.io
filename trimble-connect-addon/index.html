@@ -103,8 +103,12 @@
             
                 WorkspaceAPI.viewer.getObjects().then((modelObjects)=>{
                     console.log(modelObjects)
-                    console.log(modelObjects.objects)
-                    console.log(modelObjects.objects.length)
+
+                    modelObjects.objects.then((modelObjectsObjects)=>{
+                        console.log("LEEENGTH")
+                        console.log(modelObjectsObjects)
+                        console.log(modelObjectsObjects.length)
+                    })
                 })
             })
 
