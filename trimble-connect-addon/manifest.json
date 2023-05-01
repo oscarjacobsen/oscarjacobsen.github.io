@@ -4,18 +4,5 @@
     "url": "https://oscarjacobsen.no/trimble-connect-addon/index.html",
     "description": "Extentions to Trimble Connect Web",
     "configCommand": "do_config",
-    "enabled": false,
-    "command": "QUADRI_TOP_MENU0",
-    "subMenus": [
-        {
-            "title": "Quadri shared Modelsubmenu1",
-            "icon": "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-            "command": "QUADRI_SUB_MENU10"
-        },
-        {
-            "title": "Quadri shared Model submenu2",
-            "icon": "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-            "command": "QUADRI_SUB_MENU20"
-        }
-    ]
+    "enabled": false
 }
