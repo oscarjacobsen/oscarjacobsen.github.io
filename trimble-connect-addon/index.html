@@ -142,6 +142,19 @@
 
                     console.log(selectionObjects)
 
+                    for (let a = 0; a < selectedObjects.length; a++){
+
+                        WorkspaceAPI.viewer.getObjectProperties(selectedObjects[a].modelId, selectedObjects[a].objectRuntimeIds).then((selectedObjectProperties)=>{
+
+                            console.log("SELECTED OBJECTS PROPERTIES")
+                            console.log(selectedObjectProperties)
+
+                        })
+
+                    }
+
+                    console.log(selectionObjects)
+
                 })
             })
         }
