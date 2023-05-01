@@ -103,6 +103,8 @@
             
                 WorkspaceAPI.viewer.getObjects().then((modelObjects)=>{
                     console.log(modelObjects)
+                    console.log(modelObjects.objects)
+                    console.log(modelObjects.objects.length)
                 })
             })
 
@@ -121,11 +123,16 @@
 
                         var modelObject = modelObjects[a]
                         var modelId = modelObject.modelId
+
+                        
+
                         var modelObjectsObjects = modelObject.objects
 
                         console.log("MODEL ID = " + modelId)
                         console.log(modelObjectsObjects)
 
+
+                        /*
                         for (let b = 0; b < modelObjectsObjects.length; b++){
 
                             var objectClass = modelObjectsObjects[b].class
@@ -153,6 +160,7 @@
                             }
 
                         }
+                        */
 
                     }
 
