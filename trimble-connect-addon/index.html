@@ -108,8 +108,46 @@
                     for (let a = 0; a < modelObjects.length; a++){
 
                         var modelID = modelObjects[a].modelId
+                        var mObjects = modelObjects[a].objects
+                        console.log(mObjects)
 
-                        console.log(modelObjects[a].objects)
+                        for (let b = 0; b < mObjects.length; b++){
+
+                            console.log("**OBJECT**")
+                            var modelObject = mObjects[b]
+                            var objectClass = modelObject.class
+                            var objectId = modelObject.id
+                            var objectColor = modelObject.color
+                            var objectProperties = modelObject.properties
+
+                            console.log("- " + objectId + "_" + objectClass)
+                            
+                            for (let c = 0; c < objectProperties; c++){
+
+                                var propertySet = objectProperties[c]
+                                var propertySetName = propertySet.set
+                                var propertySetProperties = propertySet.properties
+
+                                console.log("-- " + propertySetName)
+
+                                for (let d = 0; d < propertySetProperties.length; d++){
+
+                                    var setProperty = propertySetProperties[d]
+                                    var setPropertyName = setProperty.name
+                                    var setPropertyType = setProperty.type
+                                    var setPropertyValue = setProperty.value
+
+                                    console.log("--- " + setPropertyType + "_" + setPropertyName + "_" + setPropertyValue)
+
+                                }
+
+                            }
+                            console.log(Properties)
+
+
+                        }
+
+
                     }
 
 
