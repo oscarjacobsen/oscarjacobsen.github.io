@@ -87,19 +87,25 @@
                     
                     console.log(modelSpecs)
                     
-                    for (let i = 0; i < modelSpecs; i++){
+                    for (let i = 0; i < modelSpecs.length; i++){
 
-                        console.log(modelSpecs[i])
-                        var elemDiv = document.createElement('div');
-                        elemDiv.id = "model"
-                        elemDiv.innerHTML = modelSpecs[i].name
-                        document.body.appendChild(elemDiv);
+                        var model = modelSpecs[i]
+                        var modelId = model.id
+                        var modelName = model.name
 
+                        console.log(modelId)
+                        console.log(modelName)
                     }
                     
                     
                 })
+            
+                WorkspaceAPI.viewer.getObjects().then((modelObjects)=>{
+                    console.log(modelObjects)
+                })
             })
+
+
             return ""
         }
 
