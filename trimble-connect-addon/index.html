@@ -29,6 +29,7 @@
     <div id="connect-user"></div>
     <div id="console-log"></div>
     <button onclick="getObjectsColor()">getObjectsColor</button>
+    <button onclick="doMmi20()">GO: MMI-2.0</button>
 
     <script>
 
@@ -114,6 +115,20 @@
             dotConnect().then((WorkspaceAPI) => {
                 return WorkspaceAPI.viewer.removeSectionPlanes()
             })
+        }
+
+        function doMmi20(){
+
+            dotConnect().then((WorkspaceAPI)=>{
+
+                WorkspaceAPI.viewer.getObjects().then((viewerObjects)=>{
+
+                    console.log(viewerObjects)
+
+                })
+
+            })
+
         }
 
         
