@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>OJ - TC-Addon</title>
+    <link rel="icon" href="./favicon.png">
+    <link rel="apple-touch-icon" href="./favicon.png">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Web site created using create-react-app">
+    <script src="https://components.connect.trimble.com/trimble-connect-workspace-api/index.js"></script>
+</head>
+
+<body>
+    <h2>ViewerAPI</h2>
+    <!--<input type="text" id="change">-->
+    <button onclick="setViewerTransparency()">Opacity 50%</button>
+    <button onclick="getViewerModels()">ViewerModels</button>
+    <button onclick="removeSectionPlanes()">removeSectionPlanes</button>
+    <button onclick="getObjects()">consoleGetObjects</button>
+    <button onclick="getSelectionData()">consoleSelectionData</button>
+    
+    <h2>Project Information</h2>
+    <div id="project-info"></div>
+    <h2>Extention Access-Token</h2>
+    <div id="access-token"></div>
+    <h2>User</h2>
+    <div id="connect-user"></div>
+    <div id="console-log"></div>
+    <button onclick="getObjectsColor()">getObjectsColor</button>
+
+    <script>
+
+
+
+        const mainMenuObject = {
+            title: "OJ - TC-Addon",
+            icon: "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
+            command: "main_nav_menu_cliked",
+            subMenus: [
+                {
+                    title: "IFC-Tool",
+                    icon: "https://oscarjacobsen.no/trimble-connect-addon/submenu_1.png",
+                    command: "submenu_1_clicked",
+                },
+                {
+                    title: "DWG-Tool",
+                    icon: "https://oscarjacobsen.no/trimble-connect-addon/submenu_2.png",
+                    command: "submenu_2_clicked",
+                },
+            ],
+        };
+
+        TrimbleConnectWorkspace.connect(
+                window.parent,
+                (event, args) => {
+                    switch (event) {
+                        case "extension.command":
+                            //"Command executed by the user: args.data"
+                            break;
+                        case "extension.accessToken":
+                            //"Accestoken or status: args.data"
+                            break;
+                        case "extension.userSettingsChanged":
+                            //"User settings changed!"
+                            break;
+                        default:
+                    }
+                },
+                30000
+            ).then((WorkspaceAPI)=>{
+
+
+
+            })
+
+        <!---->
+
+        TrimbleConnectWorkspace.connect(
+                window.parent,
+                (event, args) => {
+                    switch (event) {
+                        case "extension.command":
+                            //"Command executed by the user: args.data"
+
+                            if (args.data == "submenu_1_clicked"){
+                                console.log("Submenu1 PUSHED")
+                            } else if (args.data == "submenu_2_clicked"){
+                                console.log("Submenu2 PUSHED")
+                            } else {
+                                console.log("Mainmenu0 PUSHED")
+                            }
+
+                            break;
+                        case "extension.accessToken":
+                            //"Accestoken or status: args.data"
+                            break;
+                        case "extension.userSettingsChanged":
+                            //"User settings changed!"
+                            break;
+                        default:
+                    }
+                },
+                30000
+            );
+
+        async function dotConnect() {
+            return await TrimbleConnectWorkspace.connect(
+                window.parent,
+                (event, args) => {
+                    switch (event) {
+                        case "extension.command":
+                            //"Command executed by the user: args.data"
+                            break;
+                        case "extension.accessToken":
+                            //"Accestoken or status: args.data"
+                            break;
+                        case "extension.userSettingsChanged":
+                            //"User settings changed!"
+                            break;
+                        default:
+                    }
+                },
+                30000
+            );
+        }
+
+        function setViewerTransparency(opacity) {
+            dotConnect().then((WorkspaceAPI) => {
+                return WorkspaceAPI.viewer.setOpacity(50)
+            })
+        }
+
+        function removeSectionPlanes() {
+            dotConnect().then((WorkspaceAPI) => {
+                return WorkspaceAPI.viewer.removeSectionPlanes()
+            })
+        }
+
+        function getSelectionData(){
+            dotConnect().then((WorkspaceAPI)=>{
+                WorkspaceAPI.viewer.getSelection().then((selectionObjects)=>{
+                    console.log("RUN SELECTION OBJECTS")
+
+                    console.log(selectionObjects)
+
+                    for (let a = 0; a < selectedObjects.length; a++){
+
+                        WorkspaceAPI.viewer.getObjectProperties(selectedObjects[a].modelId, selectedObjects[a].objectRuntimeIds).then((selectedObjectProperties)=>{
+
+                            console.log("SELECTED OBJECTS PROPERTIES")
+                            console.log(selectedObjectProperties)
+
+                        })
+
+                    }
+
+                    console.log(selectionObjects)
+
+                })
+            })
+        }
+
+        function getViewerModels() {
+            console.log("RUN VIEWER MODELS")
+            dotConnect().then((WorkspaceAPI) => {
+                WorkspaceAPI.viewer.getModels("loaded").then((modelSpecs) => {
+
+                    console.log(modelSpecs)
+
+                    for (let i = 0; i < modelSpecs.length; i++) {
+
+                        var model = modelSpecs[i]
+                        var modelId = model.id
+                        var modelName = model.name
+
+                        console.log(modelId)
+                        console.log(modelName)
+                    }
+
+
+                })
+
+                WorkspaceAPI.viewer.getObjects().then((modelObjects) => {
+                    
+                    console.log(modelObjects)
+                    
+                    for (let a = 0; a < modelObjects.length; a++){
+
+                        var modelID = modelObjects[a].modelId
+                        var mObjects = modelObjects[a].objects
+                        console.log(mObjects)
+
+                        for (let b = 0; b < mObjects.length; b++){
+
+                            console.log("**OBJECT**")
+                            var modelObject = mObjects[b]
+                            var objectClass = modelObject.class
+                            var objectId = modelObject.id
+                            var objectColor = modelObject.color
+
+                            WorkspaceAPI.viewer.getObjectProperties(modelID, [objectID])
+                            var objectProperties = modelObject.properties
+
+                            console.log("- " + objectId + "_" + objectClass + "_" + objectColor)
+                            console.log(objectProperties)
+                            
+                            for (let c = 0; c < objectProperties; c++){
+
+                                var propertySet = objectProperties[c]
+                                var propertySetName = propertySet.set
+                                var propertySetProperties = propertySet.properties
+
+                                console.log("-- " + propertySetName)
+
+                                for (let d = 0; d < propertySetProperties.length; d++){
+
+                                    var setProperty = propertySetProperties[d]
+                                    var setPropertyName = setProperty.name
+                                    var setPropertyType = setProperty.type
+                                    var setPropertyValue = setProperty.value
+
+                                    console.log("--- " + setPropertyType + "_" + setPropertyName + "_" + setPropertyValue)
+
+                                }
+
+                            }
+
+
+                        }
+
+
+                    }
+
+
+                })
+            })
+
+
+            return ""
+        }
+
+        function getObjects() {
+            console.log("RUN GET OBJECTS")
+
+            dotConnect().then((WorkspaceAPI) => {
+
+                WorkspaceAPI.viewer.getObjects().then((modelObjects) => {
+
+                    for (let a = 0; a < modelObjects.length; a++) {
+
+                        var modelObject = modelObjects[a]
+                        var modelId = modelObject.modelId
+
+
+
+                        var modelObjectsObjects = modelObject.objects
+
+                        console.log("MODEL ID = " + modelId)
+                        console.log(modelObjectsObjects)
+
+
+                        /*
+                        for (let b = 0; b < modelObjectsObjects.length; b++){
+
+                            var objectClass = modelObjectsObjects[b].class
+                            var objectId = modelObjectsObjects[b].id
+                            var objectColor = modelObjectsObjects[b].color
+                            var objectProperties = modelObjectsObjects[b].properties
+
+                            for (let c = 0; c < objectProperties.length; c++){
+
+                                var propertySetName = objectProperties[c].set
+                                var propertySetProperties = objectProperties[c].properties
+
+                                console.log("- " + propertySetName)
+                                
+                                for (let d = 0; d < propertySetProperties.length; d++){
+
+                                    var propertyName = propertySetProperties[d].name
+                                    var propertyType = propertySetProperties[d].type
+                                    var propertyValue = propertySetProperties[d].value
+
+                                    console.log("-- " + propertyName + " = " + propertyValue)
+
+                                }
+
+                            }
+
+                        }
+                        */
+
+                    }
+
+                })
+
+            })
+            return ""
+        }
+
+
+
+        dotConnect().then((WorkspaceAPI) => {
+
+            // Setting ui menu
+            WorkspaceAPI.ui.setMenu(mainMenuObject)
+
+            // Printing project info
+            WorkspaceAPI.project.getCurrentProject().then((projectInfo) => {
+
+                var pro = document.getElementById("project-info")
+                pro.innerHTML = JSON.stringify(projectInfo)
+                console.log(projectInfo)
+            })
+
+            // Getting 
+            WorkspaceAPI.extension.getPermission("accesstoken").then((accessToken) => {
+                //Current user access token or status: accessToken
+                var token = document.getElementById("access-token")
+                token.innerHTML = JSON.stringify(accessToken)
+                console.log(accessToken)
+
+            });
+
+            WorkspaceAPI.user.getUser().then((connectUser) => {
+                document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
+            })
+
+            WorkspaceAPI.extension.getUser().then((connectUser) => {
+                document.getElementById("connect-user").innerHTML = JSON.stringify(connectUser)
+            })
+
+            console.log(300396)
+        })
+
+        console.log(22)
+
+
+
+    </script>
+
+    <!--<script type="module" src="./bundle.js"></script>-->
+</body>

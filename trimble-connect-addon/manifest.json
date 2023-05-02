@@ -1,6 +1,6 @@
 {
     "icon": "https://oscarjacobsen.no/trimble-connect-addon/favicon.png",
-    "title": "OscarJacobsen TC-Addon",
+    "title": "OJ TC-Addon",
     "url": "https://oscarjacobsen.no/trimble-connect-addon/index.html",
     "description": "Extentions to Trimble Connect Web",
     "configCommand": "do_config",
