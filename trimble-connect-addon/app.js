@@ -1,4 +1,6 @@
-import * as Extensions from "trimble-connect-project-workspace-api";
+var trimbleConnectWorkspaceApi = require("trimble-connect-workspace-api")
+
+import * as Extensions from "trimble-connect-workspace-api";
 import {TrimbleConnectWorkspace} from "./index.js"
 
 
