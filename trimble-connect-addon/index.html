@@ -88,6 +88,8 @@
             30000
         );
 
+        API.ui.setMenu(mainMenuObject)
+
         function setViewerTransparency(opacity) {
             dotConnect().then((API) => {
                 return API.viewer.setOpacity(50)
