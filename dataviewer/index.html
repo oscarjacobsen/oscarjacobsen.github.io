@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>URL Data as String Viewer (html</title>
+        <title>URL DataViewer</title>
         <link rel="icon" type="image/png" href="../static/images/favicon.png">
-    </head>
-    <body>
-        <div class="html"></div>
         <script>
             const queryString = window.location.search;
             let decodedQueryStr = decodeURI(queryString)
@@ -36,5 +33,10 @@
             //}
             
         </script>
+    </head>
+    <body>
+        <div class="html"></div>
+        
+
     </body>
 </html>
