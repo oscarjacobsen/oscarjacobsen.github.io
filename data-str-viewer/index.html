@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>URL Data as String Viewer (html</title>
+        <link rel="icon" type="image/png" href="../static/images/favicon.png">
+    </head>
+    <body>
+        <div class="html"></div>
+        <script>
+            const queryString = window.location.search;
+            let decodedQueryStr = decodeURI(queryString)
+
+            //console.log(queryString);
+            const urlParams = new URLSearchParams(decodedQueryStr);
+            const htmlStr = urlParams.get('html')
+            const bodyStr = urlParams.get('bodyBlob')
+            
+            console.log(queryString)
+            console.log(decodedQueryStr)
+            console.log(htmlStr)
+            //let encoded = encodeURI(queryString)
+            //console.log("ENCODED")
+            //console.log(encoded)
+            //let decoded = decodeURI(htmlStr)
+            //console.log("DECODED")
+            //console.log(decoded)
+            if (htmlStr) {
+                document.open('text/html');document.write(htmlStr);document.close();
+            }
+            else if (bodyStr){
+                
+                document.body.innerHTML = bodyStr
+            }
+            
+        </script>
+    </body>
+</html>
