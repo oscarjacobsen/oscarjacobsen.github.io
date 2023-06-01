@@ -146,12 +146,13 @@
 
                 WorkspaceAPI.viewer.getObjects().then((viewerObjects)=>{
 
-                    console.log(viewerObjects)
-                    console.log(viewerObjects.length)
+                    let objects = viewerObjects["objects"]
+                    console.log(objects)
+                    console.log(objects.length)
                     
-                    for (let i = 0; i < viewerObjects.length; i++){
+                    for (let i = 0; i < objects.length; i++){
                         console.log(i)
-                        console.log(viewerObjects[i].properties)
+                        console.log(objects[i].properties)
                     }
                     
                     //console.log(viewerObjects.properties())
