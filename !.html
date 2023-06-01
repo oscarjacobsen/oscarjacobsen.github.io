@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <!-- Required meta tags -->
@@ -152,6 +152,8 @@
     </nav>
 
     <div class="container">
+        <input type="file" id="filepicker" name="fileList" webkitdirectory multiple />
+        <ul id="listing"></ul>
 
     </div>
     <div></div>
@@ -162,6 +164,18 @@
         <p>Oslo, Norway</p>
     </footer>
     <script>
+        document.getElementById("filepicker").addEventListener(
+  "change",
+  (event) => {
+    let output = document.getElementById("listing");
+    for (const file of event.target.files) {
+      let item = document.createElement("li");
+      item.textContent = file.webkitRelativePath;
+      output.appendChild(item);
+    }
+  },
+  false
+);
 
     </script>
 
