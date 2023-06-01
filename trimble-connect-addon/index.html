@@ -152,7 +152,18 @@
                     
                     for (let i = 0; i < objects.length; i++){
                         console.log(i)
-                        console.log(objects[i].properties)
+
+                        (async() => {
+                            console.log("waiting for variable");
+                            while(objects[i].variable == "undefined") // define the condition as you like
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                            
+
+                                console.log("variable is defined");
+                                console.log(objects[i].variable)
+                        })();
+
+                        //console.log(objects[i].properties)
                     }
                     
                     //console.log(viewerObjects.properties())
