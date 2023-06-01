@@ -140,6 +140,18 @@
 
         }
 
+        let x = ""
+
+        async function getProperties(props){
+            console.log("waiting for variable");
+            while(props == "undefined") // define the condition as you like
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                            
+
+                console.log("variable is defined");
+                console.log(props)
+        }
+
         function doPsets(){
 
             dotConnect().then((WorkspaceAPI)=>{
@@ -153,15 +165,7 @@
                     for (let i = 0; i < objects.length; i++){
                         console.log(i)
 
-                        (async() => {
-                            console.log("waiting for variable");
-                            while(objects[i].variable == "undefined") // define the condition as you like
-                                await new Promise(resolve => setTimeout(resolve, 1000));
-                            
-
-                                console.log("variable is defined");
-                                console.log(objects[i].variable)
-                        })();
+                        getProperties(objects[i].properties)
 
                         //console.log(objects[i].properties)
                     }
