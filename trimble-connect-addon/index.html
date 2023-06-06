@@ -165,7 +165,15 @@
                     for (let i = 0; i < objects.length; i++){
                         console.log(i)
 
-                        getProperties(objects[i].properties)
+                        objects[i].properties.then(fetchedData=>{
+                            console.log('then:', fetchedData)
+                        }).catch(err => {
+                            console.error('catch:', err)
+                        })
+                            
+                        
+                        
+                        //getProperties(objects[i].properties)
 
                         //console.log(objects[i].properties)
                     }
