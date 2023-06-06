@@ -165,7 +165,7 @@
                     for (let i = 0; i < objects.length; i++){
                         console.log(i)
 
-                        objects[i].properties.then(fetchedData=>{
+                        Promise.resolve(vobjects[i].properties).then(fetchedData=>{
                             console.log('then:', fetchedData)
                         }).catch(err => {
                             console.error('catch:', err)
