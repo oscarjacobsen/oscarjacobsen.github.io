@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Free Web tutorials">
+    <meta name="keywords" content="HTML, CSS, JavaScript">
+    <meta name="author" content="Oscar Jacobsen">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>OJ - TC-Addon</title>
     <link rel="icon" href="./favicon.png">
     <link rel="apple-touch-icon" href="./favicon.png">
     <link rel="manifest" href="./manifest.json">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Web site created using create-react-app">
     <script src="https://components.connect.trimble.com/trimble-connect-workspace-api/index.js"></script>
 </head>
 
 <body>
-    <h2>ViewerAPI</h2>
+    <h2>OJ - TC-Addon</h2>
     <!--<input type="text" id="change">-->
     <button onclick="setViewerTransparency()">Opacity 50%</button>
     <button onclick="getViewerModels()">ViewerModels</button>
@@ -237,6 +241,9 @@
         })}
 
         function getSelectionData(){
+
+            let data = []
+
             dotConnect().then((WorkspaceAPI)=>{
                 WorkspaceAPI.viewer.getSelection().then((selectionObjects)=>{
                     console.log("RUN SELECTION OBJECTS")
@@ -249,6 +256,22 @@
 
                             console.log("SELECTED OBJECTS PROPERTIES")
                             console.log(selectedObjectProperties)
+
+                            selectedObjectProperties.forEach(objectProperties =>{
+
+                                objectProperties.properties.forEach(objectPropertyset =>{
+
+                                    console.log('--Pset_Name: \t', objectPropertyset['name'])
+
+                                    objectPropertyset.properties.forEach(objectPropertysetProperty =>{
+
+                                        console.log('--- Prop: \t', objectPropertysetProperty['name'], ' = ', objectPropertysetProperty['value'])
+
+                                    })
+
+                                })
+
+                            })
 
                         })
 
