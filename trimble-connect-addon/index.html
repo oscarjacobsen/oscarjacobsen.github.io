@@ -173,6 +173,8 @@
 
                                 console.log('objectProps:')
                                 console.log(objectProperties)
+                            }).catch(err => {
+                                console.logg('catch: ', err)
                             })
                             
 
@@ -181,7 +183,6 @@
                     });
 
                     let objects = viewerObjects[0]["objects"]
-                    let 
                     //console.log(objects)
                     //console.log(objects.length)
 
@@ -242,7 +243,7 @@
 
                     console.log(selectionObjects)
 
-                    for (let a = 0; a < selectedObjects.length; a++){
+                    for (let a = 0; a < selectionObjects.length; a++){
 
                         WorkspaceAPI.viewer.getObjectProperties(selectionObjects[a].modelId, selectionObjects[a].objectRuntimeIds).then((selectedObjectProperties)=>{
 
