@@ -250,9 +250,9 @@
 
                     console.log(selectionObjects)
 
-                    for (let a = 0; a < selectionObjects.length; a++){
+                    selectionObjects.forEach(selectedModelObject =>{
 
-                        WorkspaceAPI.viewer.getObjectProperties(selectionObjects[a].modelId, selectionObjects[a].objectRuntimeIds).then((selectedObjectProperties)=>{
+                        WorkspaceAPI.viewer.getObjectProperties(selectedModelObject.modelId, selectedModelObject.objectRuntimeIds).then((selectedObjectProperties)=>{
 
                             console.log("SELECTED OBJECTS PROPERTIES")
                             console.log(selectedObjectProperties)
@@ -275,7 +275,9 @@
 
                         })
 
-                    }
+                    })
+
+
 
                     console.log(selectionObjects)
 
