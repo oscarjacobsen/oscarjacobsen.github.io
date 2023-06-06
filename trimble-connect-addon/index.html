@@ -152,15 +152,40 @@
                 console.log(props)
         }
 
+        let modelId;
+        let objectIds;
+        let objectProperties;
+
         function doPsets(){
 
             dotConnect().then((WorkspaceAPI)=>{
 
                 WorkspaceAPI.viewer.getObjects().then((viewerObjects)=>{
 
+                    viewerObjects.forEach(modelObjectsSet => {
+                        
+                        modelId = modelObjectsSet['modelId']
+                        console.log('modelID: ')
+                        
+                        modelObjectsSet['objects'].forEach(modelObject => {
+
+                            WorkspaceAPI.viewer.getObjectProperties(modelId, [modelObjectsSet['modelId']]).then(objectProperties => {
+
+                                console.log('objectProps:')
+                                console.log(objectProperties)
+                            })
+                            
+
+                        })
+
+                    });
+
                     let objects = viewerObjects[0]["objects"]
-                    console.log(objects)
-                    console.log(objects.length)
+                    let 
+                    //console.log(objects)
+                    //console.log(objects.length)
+
+
                     
                     for (let i = 0; i < objects.length; i++){
                         console.log(i)
