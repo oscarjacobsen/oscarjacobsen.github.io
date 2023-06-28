@@ -29,5 +29,9 @@
       // as required.
       showCreditsOnScreen: true,
     }));
+
+    const tileset2 = viewer.scene.primitives.add(
+      await Cesium.Cesium3DTileset.fromIonAssetId(1910039)
+    );
   </script>
 </body>
