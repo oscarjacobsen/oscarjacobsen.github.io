@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta name="description" content="Use Viewer to start building new applications or easily embed Cesium into existing applications.">
+    <meta name="cesium-sandcastle-labels" content="Beginner, Showcases">
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script src="../CesiumUnminified/Cesium.js"></script>
+    <script>window.CESIUM_BASE_URL = "../CesiumUnminified/";</script>
+  </head>
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+<style>
+  @import url(../templates/bucket.css);
+</style>
+<div id="cesiumContainer" class="fullSize"></div>
+<div id="loadingOverlay">
+  <h1>Loading...</h1>
+</div>
+<div id="toolbar"></div>
+<script id="cesium_sandcastle_script">
+window.startup = async function (Cesium) {
+    'use strict';
+//Sandcastle_Begin
+// Grant CesiumJS access to your ion assets
+Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2MDRhZjhkMy00NzFmLTQ1YjMtODdkNC1kNjg1NDdjOTA0NzkiLCJpZCI6MTUwMDM5LCJpYXQiOjE2ODc5NzA3MjV9.Y5o4gm3fbyWsTlSClKV_Yt_rMFFxaWAhTPyPXBgb0ek";
+
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  terrainProvider: await Cesium.CesiumTerrainProvider.fromIonAssetId(
+    1
+  ),
+});
+viewer.scene.globe.depthTestAgainstTerrain = true;
+
+try {
+  const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(1910039);
+  viewer.scene.primitives.add(tileset);
+  await viewer.zoomTo(tileset);
+
+  // Apply the default style if it exists
+  const extras = tileset.asset.extras;
+  if (
+    Cesium.defined(extras) &&
+    Cesium.defined(extras.ion) &&
+    Cesium.defined(extras.ion.defaultStyle)
+  ) {
+    tileset.style = new Cesium.Cesium3DTileStyle(extras.ion.defaultStyle);
+  }
+} catch (error) {
+  console.log(error);
+}
+//Sandcastle_End
+    Sandcastle.finishedLoading();
+};
+if (typeof Cesium !== 'undefined') {
+    window.startupCalled = true;
+    window.startup(Cesium).catch((error) => {
+      "use strict";
+      console.error(error);
+    });
+}
+</script>
+</body>
+</html>
