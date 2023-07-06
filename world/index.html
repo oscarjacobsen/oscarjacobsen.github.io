@@ -55,6 +55,12 @@
       })
     );
 
+    // Loading OSM Buildings
+    Cesium.Cesium3DTileset.fromIonAssetId(96188).then((res) => {
+      viewer.scene.primitives.add(res);
+    });
+
+    
     // Loading E18 Asset tunnel
     Cesium.Cesium3DTileset.fromIonAssetId(1910039).then((res) => {
       viewer.scene.primitives.add(res);
