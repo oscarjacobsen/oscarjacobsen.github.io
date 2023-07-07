@@ -34,16 +34,19 @@
       // Use Cesium World Terrain
       //imageryProviderViewModels : imagerySources,
       //imageryProvider: false,
-      //baseLayerPicker: true,
+      baseLayerPicker: true,
       geocoder: true,
       globe: false,
       // https://cesium.com/blog/2018/01/24/cesium-scene-rendering-performance/#enabling-request-render-mode
       //requestRenderMode: true,
       //
-    });
+    })
+
+    console.log(viewer.scene.globe)
+
 
     // Allows to go under ground
-    viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+    
 
     // Add 3D Tiles tileset.
     const tileset = viewer.scene.primitives.add(
